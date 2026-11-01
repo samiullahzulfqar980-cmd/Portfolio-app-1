@@ -35,7 +35,7 @@ not a WebView.
 
 - **Public portfolio, no login required.** Visitors browse Home, Projects, About, Contact
   and the résumé immediately. Authentication is only a door to the owner tools.
-- **Google-style onboarding** shown once on first launch (skippable, replayable).
+- **Slide-style onboarding** shown once on first launch (skippable, replayable).
 - **Search + filter project grid** with category, stack and featured filters, plus a detail
   screen with live demo / repository links.
 - **Validated inquiry form** with honeypot, minimum fill time, device cooldown, client-side

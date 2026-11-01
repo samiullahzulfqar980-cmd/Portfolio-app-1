@@ -1,10 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/config/app_env.dart';
-import 'core/providers/app_providers.dart';
 import 'core/router/app_router.dart';
+import 'core/supabase/supabase_bootstrap.dart';
 import 'core/theme/app_theme.dart';
 
 class PortfolioApp extends ConsumerStatefulWidget {
@@ -19,9 +22,6 @@ class _PortfolioAppState extends ConsumerState<PortfolioApp> {
 
   @override
   Widget build(BuildContext context) {
-    // Follow the OS reduced-motion + high-contrast intent.
-    final MediaQueryData media = MediaQuery.maybeOf(context) ?? const MediaQueryData();
-
     return MaterialApp.router(
       title: 'Portfolio',
       debugShowCheckedModeBanner: false,
@@ -33,43 +33,67 @@ class _PortfolioAppState extends ConsumerState<PortfolioApp> {
         final MediaQueryData data = MediaQuery.of(context);
         return MediaQuery(
           data: data.copyWith(
-            // Keep text responsive to OS settings but avoid layouts breaking
-            // past 160% — the largest setting that still fits a phone screen.
+            // Responsive to OS text size, but capped so phone layouts stay intact.
             textScaler: data.textScaler.clamp(maxScaleFactor: 1.6),
           ),
-          child: _DeepLinkListener(child: child ?? const SizedBox.shrink()),
+          child: AuthDeepLinkListener(child: child ?? const SizedBox.shrink()),
         );
       },
     );
   }
 }
 
-/// Routes password-recovery deep links to the "set a new password" screen.
-class _DeepLinkListener extends ConsumerStatefulWidget {
-  const _DeepLinkListener({required this.child});
+/// Routes password-recovery links to the "choose a new password" screen.
+///
+/// Two paths are covered:
+///  * the cross-platform signal from Supabase (`passwordRecovery` auth event);
+///  * a browser-style recovery fragment, useful on web/desktop targets.
+class AuthDeepLinkListener extends ConsumerStatefulWidget {
+  const AuthDeepLinkListener({super.key, required this.child});
 
   final Widget child;
 
   @override
-  ConsumerState<_DeepLinkListener> createState() => _DeepLinkListenerState();
+  ConsumerState<AuthDeepLinkListener> createState() => _AuthDeepLinkListenerState();
 }
 
-class _DeepLinkListenerState extends ConsumerState<_DeepLinkListener> {
-  bool _handled = false;
+class _AuthDeepLinkListenerState extends ConsumerState<AuthDeepLinkListener> {
+  StreamSubscription<AuthState>? _subscription;
+  bool _checkedInitialUri = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!SupabaseBootstrap.isReady) return;
+    _subscription = SupabaseBootstrap.client.auth.onAuthStateChange.listen(
+      (AuthState state) {
+        if (state.event == AuthChangeEvent.passwordRecovery) {
+          _openResetFlow();
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
+
+  void _openResetFlow() {
+    if (!mounted) return;
+    ref.read(appRouterProvider).go(AppRoutes.resetPassword);
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (!_handled) {
-      _handled = true;
-      // supabase_flutter parses tokens from the incoming deep link before the
-      // first frame; detect that here and send the user to the reset flow.
-      final String? fragment = Uri.base.fragment;
-      final bool hasRecoveryToken = Uri.base.host == 'auth-callback' ||
+    if (!_checkedInitialUri) {
+      _checkedInitialUri = true;
+      final String fragment = Uri.base.fragment;
+      final bool recoveryFromUri = Uri.base.host == 'auth-callback' ||
           (fragment.contains('type=recovery') && fragment.contains('access_token='));
-      if (hasRecoveryToken && AppEnv.isConfigured) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) context.go(AppRoutes.resetPassword);
-        });
+      if (recoveryFromUri && AppEnv.isConfigured) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => _openResetFlow());
       }
     }
     return widget.child;

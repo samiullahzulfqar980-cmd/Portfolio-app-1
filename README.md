@@ -211,6 +211,26 @@ Uploads happen from the admin screens (image picker / file picker → Storage). 
 are **object paths** (e.g. `projects/1712345_finpulse.png`), and the app resolves them to
 public URLs with `StorageUrl`.
 
+#### Moving the bundled artwork into Storage
+
+The seed ships `assets/...` paths so the app renders immediately after seeding. To make the
+database the only source of media as well:
+
+1. Upload your files to the buckets, e.g. `project-images/projects/finpulse.png`,
+   `profile-images/avatar/me.webp`, `resume-files/resume/cv.pdf` — the admin uploaders do
+   this for you and write the new path back to the row.
+2. Or update rows by hand:
+
+   ```sql
+   update public.projects set image_path = 'projects/finpulse.png'
+    where slug = 'finpulse-fintech-wallet';
+   update public.profiles set avatar_path = 'avatar/me.webp',
+                              resume_path = 'resume/cv.pdf';
+   ```
+
+3. Reload the app. `StorageUrl` turns each object path into a public URL, so no code change
+   is needed, and nothing is read from the bundle any more.
+
 ### 4. Auth settings
 
 In **Authentication → Providers**, keep **Email** enabled. Recommended:

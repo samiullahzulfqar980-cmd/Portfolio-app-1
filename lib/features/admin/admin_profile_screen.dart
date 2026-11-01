@@ -65,6 +65,30 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
   static const List<String> _availabilityOptions = <String>['available', 'open', 'unavailable'];
 
   @override
+  void initState() {
+    super.initState();
+    // Hydrate from cache immediately, or as soon as the profile arrives.
+    final AppProfile? cached = ref.read(adminProfileProvider).value;
+    if (cached != null) {
+      _hydrate(cached);
+      _hydrated = true;
+    } else {
+      ref.listenManual(
+        adminProfileProvider,
+        (AsyncValue<AppProfile>? previous, AsyncValue<AppProfile> next) {
+          final AppProfile? loaded = next.value;
+          if (loaded != null && mounted && !_hydrated) {
+            setState(() {
+              _hydrate(loaded);
+              _hydrated = true;
+            });
+          }
+        },
+      );
+    }
+  }
+
+  @override
   void dispose() {
     for (final TextEditingController controller in <TextEditingController>[
       _name,
@@ -249,11 +273,6 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
   Widget build(BuildContext context) {
     final AsyncValue<AppProfile> profile = ref.watch(adminProfileProvider);
     final double gutter = AppSpacing.gutter(context);
-
-    if (profile.hasValue && !_hydrated) {
-      _hydrated = true;
-      _hydrate(profile.requireValue);
-    }
 
     return AdminScaffold(
       title: 'Profile',

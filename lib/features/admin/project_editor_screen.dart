@@ -11,6 +11,7 @@ import '../../core/errors/app_failure.dart';
 import '../../core/providers/admin_providers.dart';
 import '../../core/providers/app_providers.dart';
 import '../../core/providers/content_providers.dart';
+import '../../core/router/app_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
@@ -62,6 +63,7 @@ class _ProjectEditorScreenState extends ConsumerState<ProjectEditorScreen> {
 
   Project? _initial;
   bool _initialised = false;
+  bool _notFound = false;
   bool _slugTouched = false;
   bool _saving = false;
   bool _uploading = false;
@@ -80,6 +82,47 @@ class _ProjectEditorScreenState extends ConsumerState<ProjectEditorScreen> {
   void initState() {
     super.initState();
     _title.addListener(_maybeAutofillSlug);
+
+    // Hydration happens here (or in a provider listener) so text controllers
+    // are never mutated while the widget tree is building.
+    final Project? incoming = widget.project;
+    if (incoming != null) {
+      _hydrate(incoming);
+      _initialised = true;
+    } else if (widget.projectId != null) {
+      _resolveExistingProject();
+    } else {
+      _initialised = true;
+    }
+  }
+
+  /// Deep-link path: the row is not in `extra`, so wait for the admin list.
+  void _resolveExistingProject() {
+    final List<Project>? cached = ref.read(adminProjectsProvider).value;
+    if (cached != null) {
+      _applyIncoming(cached);
+      return;
+    }
+    ref.listenManual(
+      adminProjectsProvider,
+      (AsyncValue<List<Project>>? previous, AsyncValue<List<Project>> next) {
+        final List<Project>? loaded = next.value;
+        if (loaded != null && mounted && !_initialised) {
+          setState(() => _applyIncoming(loaded));
+        }
+      },
+    );
+  }
+
+  void _applyIncoming(List<Project> projects) {
+    for (final Project candidate in projects) {
+      if (candidate.id == widget.projectId) {
+        _hydrate(candidate);
+        break;
+      }
+    }
+    _notFound = _initial == null;
+    _initialised = true;
   }
 
   @override
@@ -242,34 +285,21 @@ class _ProjectEditorScreenState extends ConsumerState<ProjectEditorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Resolve the project when arriving from a deep link without `extra`.
-    if (widget.project != null && !_initialised) {
-      _initialised = true;
-      _hydrate(widget.project!);
-    } else if (widget.project == null && !_initialised) {
+    if (_notFound) {
+      return AdminScaffold(
+        title: 'Project',
+        child: EmptyStateView(
+          title: 'Project not found',
+          message: 'It may have been deleted from another device.',
+          icon: Icons.folder_off_outlined,
+          actionLabel: 'Back to projects',
+          onAction: () => context.go(AppRoutes.adminProjects),
+        ),
+      );
+    }
+    if (!_initialised) {
       final AsyncValue<List<Project>> projects = ref.watch(adminProjectsProvider);
-      final List<Project>? list = projects.value;
-      if (list != null) {
-        _initialised = true;
-        Project? found;
-        if (widget.projectId != null) {
-          for (final Project candidate in list) {
-            if (candidate.id == widget.projectId) {
-              found = candidate;
-              break;
-            }
-          }
-        }
-        if (found != null) {
-          _hydrate(found);
-        } else {
-          int highest = 0;
-          for (final Project candidate in list) {
-            if (candidate.sortOrder > highest) highest = candidate.sortOrder;
-          }
-          _sortOrder = highest + 1;
-        }
-      } else if (projects.hasError) {
+      if (projects.hasError) {
         return AdminScaffold(
           title: 'Project',
           child: ErrorStateView(
@@ -277,12 +307,11 @@ class _ProjectEditorScreenState extends ConsumerState<ProjectEditorScreen> {
             onRetry: () => ref.invalidate(adminProjectsProvider),
           ),
         );
-      } else {
-        return const AdminScaffold(
-          title: 'Project',
-          child: Center(child: CircularProgressIndicator()),
-        );
       }
+      return const AdminScaffold(
+        title: 'Project',
+        child: Center(child: CircularProgressIndicator()),
+      );
     }
 
     final double gutter = AppSpacing.gutter(context);

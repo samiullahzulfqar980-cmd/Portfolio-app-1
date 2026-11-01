@@ -32,7 +32,8 @@ insert into public.profiles (
   'Open to freelance projects and full-time roles',
   jsonb_build_object(
     'github',   jsonb_build_object('url', 'https://github.com/your-username', 'label', 'GitHub'),
-    'linkedin', jsonb_build_object('url', 'https://www.linkedin.com/in/your-username', 'label', 'LinkedIn')
+    'linkedin', jsonb_build_object('url', 'https://www.linkedin.com/in/your-username', 'label', 'LinkedIn'),
+    'whatsapp', jsonb_build_object('url', '+923470563895', 'label', 'WhatsApp')
   ),
   'avatar/avatar.png',
   null,

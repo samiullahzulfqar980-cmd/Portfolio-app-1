@@ -42,12 +42,36 @@ class LauncherService {
       case 'email':
         return openEmail(link.url);
       case 'whatsapp':
-        if (link.url.startsWith('http')) return openUrl(link.url);
-        final String digits = link.url.replaceAll(RegExp(r'[^0-9]'), '');
-        return openUrl('https://wa.me/$digits');
+        return openWhatsApp(link.url);
       default:
         return openUrl(link.url);
     }
+  }
+
+  /// Opens a WhatsApp chat.
+  ///
+  /// Accepts a `wa.me` / `api.whatsapp.com` link, a `whatsapp://send` deep link
+  /// or a plain number such as `+92 347 0563895`. Plain numbers are normalised
+  /// to digits only, which is what wa.me expects (no `+`, no spaces).
+  Future<bool> openWhatsApp(String raw) {
+    final String trimmed = raw.trim();
+    if (trimmed.isEmpty) {
+      throw const AppFailure(
+        'No WhatsApp number has been published yet.',
+        code: 'missing_whatsapp',
+      );
+    }
+    if (trimmed.startsWith('http') || trimmed.startsWith('whatsapp:')) {
+      return openUrl(trimmed);
+    }
+    final String digits = trimmed.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.length < 8) {
+      throw const AppFailure(
+        'That WhatsApp number looks incomplete.',
+        code: 'bad_whatsapp',
+      );
+    }
+    return openUrl('https://wa.me/$digits');
   }
 
   Future<bool> openEmail(String address, {String? subject}) async {

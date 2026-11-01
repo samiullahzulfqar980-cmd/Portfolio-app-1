@@ -83,6 +83,23 @@ class Validators {
     return null;
   }
 
+  static final RegExp _phoneLike = RegExp(r'^\+?[0-9][0-9\s\-().]{6,19}$');
+
+  /// WhatsApp accepts either a wa.me-style link or a plain phone number such as
+  /// `+92 347 0563895`, so the generic URL check is too strict on its own.
+  static String? whatsapp(String? value, {bool required = false}) {
+    final String v = (value ?? '').trim();
+    if (v.isEmpty) return required ? 'A WhatsApp number is required.' : null;
+    if (_url.hasMatch(v)) return null;
+    if (!_phoneLike.hasMatch(v)) {
+      return 'Use a number like +92 347 0563895, or a full https://wa.me/… link.';
+    }
+    final String digits = v.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.length < 8) return 'That number looks too short.';
+    if (digits.length > 15) return 'That number looks too long.';
+    return null;
+  }
+
   static String? slug(String? value) {
     final String v = (value ?? '').trim();
     if (v.isEmpty) return 'A slug is required.';

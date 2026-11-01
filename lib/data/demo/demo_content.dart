@@ -57,6 +57,11 @@ class DemoContent {
             label: 'LinkedIn',
             url: 'https://www.linkedin.com/',
           ),
+          'whatsapp': SocialLink(
+            key: 'whatsapp',
+            label: 'WhatsApp',
+            url: '+923470563895',
+          ),
         },
         stats: <ProfileStat>[
           ProfileStat(label: 'Focus', value: 'Mobile + Web', iconKey: 'mobile'),

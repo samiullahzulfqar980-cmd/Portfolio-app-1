@@ -125,6 +125,32 @@ class AppProfile {
 
   String get primaryRole => roles.isNotEmpty ? roles.first : headline;
 
+  /// The WhatsApp entry from [socialLinks], when the owner has added one.
+  SocialLink? get whatsappLink => socialLinks['whatsapp'];
+
+  /// Human-readable WhatsApp number, e.g. `+923470563895` -> `+92 347 0563895`.
+  ///
+  /// Returns null when no WhatsApp link exists. Numbers that are stored as a
+  /// `wa.me` link are extracted; anything unparseable is shown as-is.
+  String? get whatsappDisplay {
+    final String raw = whatsappLink?.url ?? '';
+    if (raw.trim().isEmpty) return null;
+    final String digits = raw.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.length < 8) return raw;
+    // `+923470563895` -> `+92 347 0563895` (country code + mobile prefix + line).
+    // Unusual lengths fall back to plain 3-digit grouping.
+    final String country = digits.substring(0, 2);
+    final String rest = digits.substring(2);
+    if (rest.length == 10) {
+      return '+$country ${rest.substring(0, 3)} ${rest.substring(3)}';
+    }
+    final List<String> chunks = <String>[];
+    for (int i = 0; i < rest.length; i += 3) {
+      chunks.add(rest.substring(i, i + 3 > rest.length ? rest.length : i + 3));
+    }
+    return '+$country ${chunks.join(' ')}';
+  }
+
   List<SocialLink> get orderedSocialLinks {
     const List<String> order = <String>['github', 'linkedin', 'whatsapp', 'x', 'website', 'dribbble'];
     final List<SocialLink> links = socialLinks.values.toList();

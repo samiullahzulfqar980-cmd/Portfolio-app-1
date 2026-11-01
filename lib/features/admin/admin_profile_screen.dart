@@ -475,9 +475,15 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                       AppTextField(
                         controller: _socials[key],
                         label: SocialLink(key: key, label: key, url: '').label,
-                        hint: 'https://…',
-                        keyboardType: TextInputType.url,
-                        validator: (String? value) => Validators.url(value),
+                        hint: key == 'whatsapp'
+                            ? 'WhatsApp number or wa.me link'
+                            : 'https://…',
+                        keyboardType: key == 'whatsapp'
+                            ? TextInputType.phone
+                            : TextInputType.url,
+                        validator: (String? value) => key == 'whatsapp'
+                            ? Validators.whatsapp(value)
+                            : Validators.url(value),
                       ),
                     ],
                   ],

@@ -184,6 +184,10 @@ class _ContactBodyState extends ConsumerState<_ContactBody> {
     final AppProfile profile = widget.data.profile;
     final double gutter = AppSpacing.gutter(context);
     final LauncherService launcher = const LauncherService();
+    // WhatsApp gets its own row (it shows the number), so drop it from the chips.
+    final List<SocialLink> socialChips = profile.orderedSocialLinks
+        .where((SocialLink link) => link.key != 'whatsapp')
+        .toList(growable: false);
 
     return ListView(
       padding: EdgeInsets.fromLTRB(gutter, 8, gutter, 120),
@@ -209,6 +213,16 @@ class _ContactBodyState extends ConsumerState<_ContactBody> {
                   onTap: () => _launch(() => launcher.openEmail(profile.email)),
                   trailing: const Icon(Icons.open_in_new_rounded, size: 15, color: AppColors.textMuted),
                 ),
+                if (profile.whatsappLink != null)
+                  InfoRow(
+                    icon: Icons.chat_bubble_outline_rounded,
+                    label: 'WhatsApp',
+                    value: profile.whatsappDisplay ?? 'Message on WhatsApp',
+                    onTap: () => _launch(
+                      () => launcher.openWhatsApp(profile.whatsappLink!.url),
+                    ),
+                    trailing: const Icon(Icons.open_in_new_rounded, size: 15, color: AppColors.textMuted),
+                  ),
                 if (profile.phone != null && profile.phone!.isNotEmpty)
                   InfoRow(
                     icon: Icons.call_outlined,
@@ -225,14 +239,14 @@ class _ContactBodyState extends ConsumerState<_ContactBody> {
                         ? profile.location!
                         : '${profile.location!} · ${profile.timezone!}',
                   ),
-                if (profile.orderedSocialLinks.isNotEmpty) ...<Widget>[
+                if (socialChips.isNotEmpty) ...<Widget>[
                   const Divider(height: 22),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: profile.orderedSocialLinks
+                      children: socialChips
                           .map(
                             (SocialLink link) => PillButton(
                               label: link.label,

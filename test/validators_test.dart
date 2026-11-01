@@ -16,6 +16,31 @@ void main() {
     });
   });
 
+  group('Validators.whatsapp', () {
+    test('accepts a plain international number', () {
+      expect(Validators.whatsapp('+923470563895'), isNull);
+      expect(Validators.whatsapp('+92 347 0563895'), isNull);
+      expect(Validators.whatsapp('+92 (347) 056-3895'), isNull);
+      expect(Validators.whatsapp('00923470563895'), isNull);
+    });
+
+    test('accepts a wa.me link', () {
+      expect(Validators.whatsapp('https://wa.me/923470563895'), isNull);
+    });
+
+    test('is optional unless required', () {
+      expect(Validators.whatsapp(''), isNull);
+      expect(Validators.whatsapp('', required: true), isNotNull);
+      expect(Validators.whatsapp(null, required: true), isNotNull);
+    });
+
+    test('rejects junk and too-short numbers', () {
+      expect(Validators.whatsapp('call me maybe'), isNotNull);
+      expect(Validators.whatsapp('12345'), isNotNull);
+      expect(Validators.whatsapp('+92 347 0563895 1234567890'), isNotNull);
+    });
+  });
+
   group('Validators.password', () {
     test('requires 8+ chars with letters and numbers on sign up', () {
       expect(Validators.password('short1', signUp: true), isNotNull);

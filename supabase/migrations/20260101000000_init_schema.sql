@@ -73,7 +73,7 @@ create table if not exists public.profiles (
   created_at          timestamptz not null default now(),
   updated_at          timestamptz not null default now(),
   constraint profiles_full_name_len check (char_length(full_name) between 2 and 80),
-  constraint profiles_email_shape check (email ~* '^[^@\s]+@[^@\s]+\.[^@\s]{2,}$'),
+  constraint profiles_email_shape check (email ~* '^[^[:space:]@]+@[^[:space:]@]+[.][^[:space:]@]{2,}$'),
   constraint profiles_bio_len check (char_length(bio) <= 6000),
   constraint profiles_roles_len check (array_length(roles, 1) is null or array_length(roles, 1) <= 8),
   constraint profiles_social_object check (jsonb_typeof(social_links) = 'object'),
@@ -221,7 +221,7 @@ create table if not exists public.contact_messages (
   created_at       timestamptz not null default now(),
   updated_at       timestamptz not null default now(),
   constraint messages_name_len check (char_length(name) between 2 and 80),
-  constraint messages_email_shape check (email ~* '^[^@\s]+@[^@\s]+\.[^@\s]{2,}$'),
+  constraint messages_email_shape check (email ~* '^[^[:space:]@]+@[^[:space:]@]+[.][^[:space:]@]{2,}$'),
   constraint messages_email_len check (char_length(email) <= 254),
   constraint messages_body_len check (char_length(message) between 12 and 2000),
   constraint messages_subject_len check (subject is null or char_length(subject) <= 120)
@@ -246,10 +246,18 @@ declare
   recent_count integer;
   link_count   integer;
 begin
-  -- Trim stray whitespace / control characters.
-  new.name := btrim(regexp_replace(new.name, '[\u0000-\u001F\u007F]', '', 'g'));
+  -- Trim stray whitespace / control characters. POSIX classes keep the
+  -- pattern readable and free of backslash escapes.
+  new.name := btrim(regexp_replace(new.name, '[[:cntrl:]]', '', 'g'));
   new.email := lower(btrim(new.email));
-  new.message := btrim(regexp_replace(new.message, '[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]', '', 'g'));
+
+  -- Strip control characters but keep line breaks (temporarily swapped out).
+  new.message := btrim(
+    replace(
+      regexp_replace(replace(new.message, chr(10), chr(182)), '[[:cntrl:]]', '', 'g'),
+      chr(182), chr(10)
+    )
+  );
   new.subject := nullif(btrim(coalesce(new.subject, '')), '');
   new.service_interest := nullif(btrim(coalesce(new.service_interest, '')), '');
   new.budget_range := nullif(btrim(coalesce(new.budget_range, '')), '');
@@ -263,7 +271,7 @@ begin
     raise exception 'Too many links in the message.' using errcode = '22023';
   end if;
 
-  if new.message ~* '\m(seo services|guest post|backlinks|crypto giveaway|casino|viagra)\M' then
+  if new.message ~* '(^|[^a-z])(seo services|guest post|backlinks|crypto giveaway|casino|viagra)([^a-z]|$)' then
     raise exception 'Message flagged as spam.' using errcode = '22023';
   end if;
 

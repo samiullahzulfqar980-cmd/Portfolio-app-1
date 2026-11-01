@@ -132,7 +132,7 @@ create policy "visitors can submit an inquiry"
     status = 'unread'
     and char_length(name) between 2 and 80
     and char_length(message) between 12 and 2000
-    and email ~* '^[^@\s]+@[^@\s]+\.[^@\s]{2,}$'
+    and email ~* '^[^[:space:]@]+@[^[:space:]@]+[.][^[:space:]@]{2,}$'
   );
 
 drop policy if exists "admins can read inquiries" on public.contact_messages;

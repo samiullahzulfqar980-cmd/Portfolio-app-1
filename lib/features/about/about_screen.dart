@@ -16,7 +16,6 @@ import '../../data/models/app_profile.dart';
 import '../../data/models/portfolio_data.dart';
 import '../../data/models/service.dart';
 import '../../data/models/skill.dart';
-import '../../data/models/timeline_entry.dart';
 import '../../shared/widgets/app_avatar.dart';
 import '../../shared/widgets/app_background.dart';
 import '../../shared/widgets/app_buttons.dart';

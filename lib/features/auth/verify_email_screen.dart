@@ -14,7 +14,6 @@ import '../../core/utils/haptics.dart';
 import '../../shared/widgets/app_buttons.dart';
 import '../../shared/widgets/feedback.dart';
 import '../../shared/widgets/glass_card.dart';
-import '../../shared/widgets/state_views.dart';
 
 /// "Check your inbox" screen shown after sign-up.
 class VerifyEmailScreen extends ConsumerStatefulWidget {

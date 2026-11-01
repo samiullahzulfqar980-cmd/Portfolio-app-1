@@ -11,9 +11,7 @@ import '../../core/theme/app_typography.dart';
 import '../../data/models/portfolio_data.dart';
 import '../../data/models/project.dart';
 import '../../shared/widgets/app_background.dart';
-import '../../shared/widgets/app_buttons.dart';
 import '../../shared/widgets/badges.dart';
-import '../../shared/widgets/glass_card.dart';
 import '../../shared/widgets/project_card.dart';
 import '../../shared/widgets/state_views.dart';
 

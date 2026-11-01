@@ -8,7 +8,6 @@ import '../../core/config/app_env.dart';
 import '../../core/errors/app_failure.dart';
 import '../../core/supabase/supabase_bootstrap.dart';
 import '../../core/utils/validators.dart';
-import '../models/contact_message.dart';
 
 class ContactSubmission {
   const ContactSubmission({

@@ -12,7 +12,6 @@ import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 import '../../data/models/project.dart';
 import '../../shared/widgets/app_avatar.dart';
-import '../../shared/widgets/app_buttons.dart';
 import '../../shared/widgets/badges.dart';
 import '../../shared/widgets/feedback.dart';
 import '../../shared/widgets/glass_card.dart';

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
@@ -322,22 +321,6 @@ class AdminRepository {
         fallback: 'Upload failed. Check the storage bucket and your connection.',
       );
     }
-  }
-
-  Future<String> uploadFile({
-    required String bucket,
-    required String folder,
-    required File file,
-    required String fileName,
-  }) async {
-    final Uint8List bytes = await file.readAsBytes();
-    return uploadImage(
-      bucket: bucket,
-      folder: folder,
-      fileName: fileName,
-      bytes: bytes,
-      contentType: _contentTypeFor(_extensionOf(fileName, fallback: 'pdf')),
-    );
   }
 
   String _extensionOf(String fileName, {required String fallback}) {

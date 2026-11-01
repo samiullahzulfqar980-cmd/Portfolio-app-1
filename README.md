@@ -22,7 +22,8 @@ not a WebView.
 8. [Grant admin access](#grant-admin-access)
 9. [Deep links (password reset & email confirmation)](#deep-links)
 10. [Local development](#local-development)
-11. [Building the app](#building-the-app)
+11. [Running in a browser (Chrome / web)](#running-in-a-browser-chrome--web)
+12. [Building the app](#building-the-app)
 12. [Testing & analysis](#testing--analysis)
 13. [Security model](#security-model)
 14. [Accessibility & motion](#accessibility--motion)
@@ -265,6 +266,52 @@ Preview mode (no env file):
 ```bash
 flutter run     # bundled sample content, admin writes disabled
 ```
+
+## Running in a browser (Chrome / web)
+
+The app also targets Flutter web, which is the fastest way to see it running without an
+emulator. No extra dependency is needed — `web/` is committed (index.html, manifest,
+icons, boot splash). It is still the same mobile-first UI: the layout is constrained to a
+phone-width canvas so it looks like the app, not a stretched website.
+
+```bash
+flutter pub get
+flutter config --enable-web                                    # once per machine
+flutter run -d chrome --dart-define-from-file=.env             # live reload in Chrome
+```
+
+Anything that opens a new tab (project links, socials, the résumé PDF, email) uses the
+browser. Uploads use the browser file picker, and passwords/session tokens are stored in
+`localStorage` encrypted with WebCrypto via `flutter_secure_storage` — the same
+`SecureSessionStorage` backing store the mobile builds use with the OS keychain.
+
+### Static web build
+
+```bash
+flutter build web --release --dart-define-from-file=.env
+cd build/web && python3 -m http.server 8080    # http://localhost:8080
+```
+
+Ship `build/web/` to any static host (GitHub Pages, Netlify, Cloudflare Pages, S3). If you
+deploy under a sub-path add `--base-href /your-path/`.
+
+Notes specific to web:
+
+| Topic | Detail |
+| --- | --- |
+| Supabase redirect URLs | Add your dev + production origins under **Auth → URL Configuration** (e.g. `http://localhost:8080`, `https://your.site`). |
+| Password reset deep links | The recovery listener also reads `Uri.base`, so `?type=recovery#access_token=…` works on web. |
+| Secure context | `flutter_secure_storage` needs HTTPS or `localhost`; plain-http LAN IPs will fail to persist a session. |
+| Deep-linked routes | The default hash URL strategy is used, so `/projects` is served as `/#/projects` and needs no server rewrites. |
+
+### Web troubleshooting
+
+| Symptom | Fix |
+| --- | --- |
+| Blank page, console shows a 404 for `flutter_bootstrap.js` | You opened `web/index.html` directly. Serve the built folder instead (see command above). |
+| `MissingPluginException` in the browser | A plugin without a web implementation — run `flutter clean` then `flutter pub get`; all plugins used here ship web support. |
+| Session does not survive a refresh on a LAN IP | Serve over HTTPS or use `localhost` (secure-context requirement). |
+| CORS errors calling Supabase | Wrong `SUPABASE_URL`, or your origin is not allowed in the Supabase dashboard Auth settings. |
 
 ## Building the app
 

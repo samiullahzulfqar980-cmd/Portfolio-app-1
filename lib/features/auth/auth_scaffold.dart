@@ -35,7 +35,6 @@ class AuthScaffold extends StatelessWidget {
       backgroundColor: AppColors.background,
       resizeToAvoidBottomInset: true,
       body: AppBackground(
-        safeArea: false,
         child: SafeArea(
           child: SingleChildScrollView(
             padding: EdgeInsets.fromLTRB(gutter, 8, gutter, 32),

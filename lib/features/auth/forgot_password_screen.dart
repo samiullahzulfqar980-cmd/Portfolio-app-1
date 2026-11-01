@@ -11,7 +11,6 @@ import '../../core/utils/haptics.dart';
 import '../../core/utils/validators.dart';
 import '../../shared/widgets/app_buttons.dart';
 import '../../shared/widgets/app_text_field.dart';
-import '../../shared/widgets/feedback.dart';
 import '../../shared/widgets/glass_card.dart';
 import '../../shared/widgets/state_views.dart';
 import 'auth_scaffold.dart';

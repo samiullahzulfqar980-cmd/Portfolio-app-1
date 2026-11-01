@@ -4,16 +4,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/errors/app_failure.dart';
-import '../../core/providers/app_providers.dart';
 import '../../core/router/app_router.dart';
 import '../../core/supabase/supabase_bootstrap.dart';
-import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/utils/haptics.dart';
 import '../../core/utils/validators.dart';
 import '../../shared/widgets/app_buttons.dart';
 import '../../shared/widgets/app_text_field.dart';
-import '../../shared/widgets/feedback.dart';
 import '../../shared/widgets/glass_card.dart';
 import '../../shared/widgets/state_views.dart';
 import 'auth_scaffold.dart';

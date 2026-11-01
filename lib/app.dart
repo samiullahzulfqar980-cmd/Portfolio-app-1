@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/config/app_env.dart';
 import 'core/router/app_router.dart';
 import 'core/supabase/supabase_bootstrap.dart';
+import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
 
 class PortfolioApp extends ConsumerStatefulWidget {
@@ -31,14 +32,55 @@ class _PortfolioAppState extends ConsumerState<PortfolioApp> {
       routerConfig: _router,
       builder: (BuildContext context, Widget? child) {
         final MediaQueryData data = MediaQuery.of(context);
+        final Widget app = AuthDeepLinkListener(
+          child: child ?? const SizedBox.shrink(),
+        );
         return MediaQuery(
           data: data.copyWith(
             // Responsive to OS text size, but capped so phone layouts stay intact.
             textScaler: data.textScaler.clamp(maxScaleFactor: 1.6),
           ),
-          child: AuthDeepLinkListener(child: child ?? const SizedBox.shrink()),
+          // On tablets, desktop and the web build the app keeps a phone-width
+          // canvas instead of stretching into a website-like layout.
+          child: data.size.width < 620 ? app : _PhoneFrame(child: app),
         );
       },
+    );
+  }
+}
+
+/// Centres the app inside a phone-sized canvas on wide viewports (web/desktop)
+/// so the mobile layout is preserved instead of being stretched edge to edge.
+class _PhoneFrame extends StatelessWidget {
+  const _PhoneFrame({required this.child});
+
+  final Widget child;
+
+  static const double _width = 430;
+  static const BorderRadius _radius = BorderRadius.all(Radius.circular(30));
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: AppColors.background,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: SizedBox(
+            width: _width,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: _radius,
+                border: Border.all(color: AppColors.borderStrong),
+                boxShadow: const <BoxShadow>[
+                  BoxShadow(color: Color(0x73000000), blurRadius: 48, spreadRadius: 2),
+                ],
+              ),
+              child: ClipRRect(borderRadius: _radius, child: child),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

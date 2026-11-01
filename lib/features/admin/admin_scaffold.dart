@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/router/app_router.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 import '../../shared/widgets/app_background.dart';
 import '../../shared/widgets/app_buttons.dart';
@@ -62,7 +61,7 @@ class AdminScaffold extends StatelessWidget {
         ),
         actions: actions,
       ),
-      body: AppBackground(safeArea: false, child: SafeArea(top: false, child: child)),
+      body: AppBackground(child: SafeArea(top: false, child: child)),
     );
   }
 }

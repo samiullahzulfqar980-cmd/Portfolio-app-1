@@ -10,7 +10,6 @@ import '../../core/router/app_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
-import '../../core/utils/storage_urls.dart';
 import '../../data/models/app_profile.dart';
 import '../../data/models/portfolio_data.dart';
 import '../../data/models/skill.dart';

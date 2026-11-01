@@ -22,6 +22,7 @@ import '../../shared/widgets/badges.dart';
 import '../../shared/widgets/feedback.dart';
 import '../../shared/widgets/glass_card.dart';
 import '../../shared/widgets/info_tiles.dart';
+import '../../shared/widgets/preview_notice.dart';
 import '../../shared/widgets/project_card.dart';
 import '../../shared/widgets/state_views.dart';
 import '../auth/auth_sheet.dart';
@@ -58,7 +59,15 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 9),
-            Text('Portfolio', style: AppType.overline(color: AppColors.textSecondary)),
+            Flexible(
+              child: Text(
+                'Portfolio',
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.ellipsis,
+                style: AppType.overline(color: AppColors.textSecondary),
+              ),
+            ),
           ],
         ),
         actions: <Widget>[
@@ -200,7 +209,7 @@ class _HomeContent extends ConsumerWidget {
       physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
       children: <Widget>[
         if (data.isPreview) ...<Widget>[
-          const _PreviewNotice(),
+          const PreviewNotice(),
           const SizedBox(height: AppSpacing.md),
         ],
         AnimatedEntry(index: 0, child: _Hero(profile: profile, data: data)),
@@ -347,7 +356,15 @@ class _HomeContent extends ConsumerWidget {
                   children: <Widget>[
                     const Icon(Icons.rocket_launch_rounded, size: 17, color: AppColors.accentSoft),
                     const SizedBox(width: 8),
-                    Text('OPEN FOR WORK', style: AppType.overline(color: AppColors.accentSoft)),
+                    Flexible(
+                      child: Text(
+                        'OPEN FOR WORK',
+                        maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppType.overline(color: AppColors.accentSoft),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -363,9 +380,15 @@ class _HomeContent extends ConsumerWidget {
                 const SizedBox(height: 14),
                 Row(
                   children: <Widget>[
-                    Text(
-                      'Start a conversation',
-                      style: AppType.labelSmall(color: AppColors.accentSoft).copyWith(fontSize: 12.5),
+                    Flexible(
+                      child: Text(
+                        'Start a conversation',
+                        maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppType.labelSmall(color: AppColors.accentSoft)
+                            .copyWith(fontSize: 12.5),
+                      ),
                     ),
                     const SizedBox(width: 4),
                     const Icon(Icons.arrow_forward_rounded, size: 14, color: AppColors.accentSoft),
@@ -414,7 +437,12 @@ class _Hero extends StatelessWidget {
                   const SizedBox(height: AppSpacing.md),
                   Text('Hello, I am', style: AppType.bodyLarge(color: AppColors.textMuted)),
                   const SizedBox(height: 2),
-                  Text(profile.fullName, style: AppType.displayMedium()),
+                  Text(
+                    profile.fullName,
+                    style: AppType.displayMedium(),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
               ),
             ),
@@ -443,17 +471,17 @@ class _Hero extends StatelessWidget {
             children: <Widget>[
               const Icon(Icons.place_outlined, size: 14, color: AppColors.textMuted),
               const SizedBox(width: 5),
-              Text(
-                profile.location!,
-                style: AppType.labelSmall(color: AppColors.textMuted).copyWith(fontSize: 11.5),
-              ),
-              if (profile.timezone != null) ...<Widget>[
-                Text(' · ', style: AppType.labelSmall(color: AppColors.textMuted)),
-                Text(
-                  profile.timezone!,
+              Flexible(
+                child: Text(
+                  profile.timezone == null
+                      ? profile.location!
+                      : '${profile.location!} · ${profile.timezone!}',
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.ellipsis,
                   style: AppType.labelSmall(color: AppColors.textMuted).copyWith(fontSize: 11.5),
                 ),
-              ],
+              ),
             ],
           ),
         ],
@@ -518,7 +546,16 @@ class _SocialChip extends StatelessWidget {
               children: <Widget>[
                 Icon(_icon, size: 15, color: AppColors.textSecondary),
                 const SizedBox(width: 6),
-                Text(link.label, style: AppType.labelSmall(color: AppColors.textSecondary)),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 120),
+                  child: Text(
+                    link.label,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppType.labelSmall(color: AppColors.textSecondary),
+                  ),
+                ),
               ],
             ),
           ),
@@ -570,35 +607,6 @@ class _Actions extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _PreviewNotice extends StatelessWidget {
-  const _PreviewNotice();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: AppColors.warning.withValues(alpha: 0.07),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.warning.withValues(alpha: 0.24)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          const Icon(Icons.science_outlined, size: 16, color: AppColors.warning),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              'Preview mode: showing bundled sample content. Add your Supabase keys to load live data.',
-              style: AppType.bodySmall(color: AppColors.warning).copyWith(fontSize: 11.5),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

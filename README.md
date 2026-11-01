@@ -27,8 +27,9 @@ not a WebView.
 12. [Testing & analysis](#testing--analysis)
 13. [Security model](#security-model)
 14. [Accessibility & motion](#accessibility--motion)
-15. [Editing the placeholder content](#editing-the-placeholder-content)
-16. [Troubleshooting](#troubleshooting)
+15. [Layout resilience (no overflow)](#layout-resilience-no-overflow)
+16. [Editing the placeholder content](#editing-the-placeholder-content)
+17. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -223,6 +224,36 @@ In **Authentication → Providers**, keep **Email** enabled. Recommended:
 Emails are sent by your Supabase project. For quick local testing you can read the
 confirmation/recovery link from the Supabase Auth logs or use the CLI's Inbucket.
 
+### 5. Supabase is the single source of truth
+
+Every value the app renders comes from Supabase — there is no second content store:
+
+| App surface | Read from | Written from |
+| --- | --- | --- |
+| Name, roles, intro, bio, stats, contact details, socials, avatar | `profiles` (single row) | Admin → Profile |
+| Projects list, filters, case studies, year, accent, tech tags | `projects` (`status = 'published'`) | Admin → Projects |
+| Skills, categories, proficiency | `skills` | Admin → Skills |
+| Services ("What I deliver") | `services` (`is_published`) | Admin → Services |
+| Experience & education | `timeline` (`kind` = experience / education) | Admin → Experience |
+| Inquiry form submissions | `contact_messages` (owner-only via RLS) | Contact tab form |
+| Avatar / project covers / résumé PDF | Supabase Storage public URLs | Admin uploaders |
+
+Verification checklist after setup:
+
+1. `select count(*) from public.projects;` returns your rows (7 after seeding).
+2. Launch the app — the **"Preview mode"** banner and the "Sample data" chip must be gone.
+   If either is visible, `.env` still has placeholders or the app was built without it.
+3. Edit a project in Admin → Projects, pull to refresh the visitor Projects tab: the change
+   is visible, proving reads and writes both hit Supabase.
+4. Unpublish a project — it disappears for visitors immediately (RLS + `status` filter).
+5. Submit an inquiry from Contact, then read it in Admin → Messages. A signed-out visitor
+   can insert but never select, so RLS is doing its job.
+
+`lib/data/demo/demo_content.dart` is **not** a fallback: it is only read when
+`SUPABASE_URL` / `SUPABASE_ANON_KEY` are absent so the UI can be reviewed offline. Any load
+error with Supabase configured surfaces an error state with retry — it never silently swaps
+in sample content.
+
 ## Grant admin access
 
 Admin rights come from the `public.admin_users` table — nothing in the app can grant them.
@@ -411,6 +442,24 @@ spam/sanitisation helpers.
 - Colour pairings target ≥4.5:1 for body text on the midnight surfaces; status is never
   conveyed by colour alone (label + colour).
 - Forms use `AutofillHints`, correct keyboard types and `TextInputAction` chains.
+
+## Layout resilience (no overflow)
+
+The app is designed to render without any `RenderFlex overflowed` errors on small phones
+(e.g. 320×568), large phones, tablets, landscape and with large accessibility text sizes.
+
+- Text scaling is capped at **160%** (`lib/app.dart`), which keeps fixed-size chrome — tab
+  bar, app bars, chips — from being pushed off-screen while still honouring OS settings.
+- Every dynamic string that sits in a horizontal row is wrapped in `Flexible`/`Expanded`
+  (or a `ConstrainedBox` inside a `MainAxisSize.min` chip) with `maxLines` +
+  `TextOverflow.ellipsis`; button labels use `FittedBox(fit: BoxFit.scaleDown)`.
+- Scroll views own vertical space: screens, empty/error states, the splash and the 404 page
+  all scroll instead of assuming height, so short landscape viewports and open keyboards
+  cannot overflow.
+- Long user content (project titles, tag lists, availability notes, locations) uses `Wrap`
+  or ellipsis rather than clipping; images are square-corner boxes with fixed aspect ratios.
+- After editing layouts, re-check with a small device plus **Display → Font size → Largest**
+  in the emulator settings.
 
 ## Editing the placeholder content
 

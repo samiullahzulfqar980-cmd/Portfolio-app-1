@@ -38,9 +38,16 @@ class TagChip extends StatelessWidget {
                   Icon(icon, size: 12.5, color: fg),
                   const SizedBox(width: 5),
                 ],
-                Text(
-                  label,
-                  style: AppType.labelSmall(color: fg).copyWith(fontSize: 11.5, letterSpacing: 0.1),
+                // A long tag must never push the chip past the screen edge.
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 220),
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppType.labelSmall(color: fg).copyWith(fontSize: 11.5, letterSpacing: 0.1),
+                  ),
                 ),
               ],
             ),
@@ -77,9 +84,15 @@ class AvailabilityBadge extends StatelessWidget {
         children: <Widget>[
           _PulseDot(color: tone, animate: isAvailable),
           const SizedBox(width: 7),
-          Text(
-            label ?? (isAvailable ? 'Available for work' : 'Currently unavailable'),
-            style: AppType.labelSmall(color: tone).copyWith(fontWeight: FontWeight.w600),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 240),
+            child: Text(
+              label ?? (isAvailable ? 'Available for work' : 'Currently unavailable'),
+              maxLines: 1,
+              softWrap: false,
+              overflow: TextOverflow.ellipsis,
+              style: AppType.labelSmall(color: tone).copyWith(fontWeight: FontWeight.w600),
+            ),
           ),
         ],
       ),
@@ -178,6 +191,9 @@ class StatusChip extends StatelessWidget {
       ),
       child: Text(
         label,
+        maxLines: 1,
+        softWrap: false,
+        overflow: TextOverflow.ellipsis,
         style: AppType.labelSmall(color: tone).copyWith(fontSize: 10.5, letterSpacing: 0.3),
       ),
     );

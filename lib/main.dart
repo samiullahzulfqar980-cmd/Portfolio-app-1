@@ -65,7 +65,7 @@ class _FatalConfigApp extends StatelessWidget {
       home: Scaffold(
         backgroundColor: const Color(0xFF06080F),
         body: SafeArea(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

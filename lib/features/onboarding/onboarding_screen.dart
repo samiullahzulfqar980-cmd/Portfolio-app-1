@@ -90,7 +90,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 padding: EdgeInsets.fromLTRB(gutter, 8, gutter - 8, 0),
                 child: Row(
                   children: <Widget>[
-                    Text('PORTFOLIO', style: AppType.overline(color: AppColors.textMuted)),
+                    Flexible(
+                      child: Text(
+                        'PORTFOLIO',
+                        maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppType.overline(color: AppColors.textMuted),
+                      ),
+                    ),
                     const Spacer(),
                     TextButton(
                       onPressed: _finish,

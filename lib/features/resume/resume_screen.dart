@@ -21,6 +21,7 @@ import '../../shared/widgets/badges.dart';
 import '../../shared/widgets/feedback.dart';
 import '../../shared/widgets/glass_card.dart';
 import '../../shared/widgets/info_tiles.dart';
+import '../../shared/widgets/preview_notice.dart';
 import '../../shared/widgets/state_views.dart';
 
 /// In-app résumé summary plus an "open the PDF" action backed by Supabase
@@ -83,6 +84,10 @@ class _ResumeBody extends StatelessWidget {
     return ListView(
       padding: EdgeInsets.fromLTRB(gutter, 8, gutter, 120),
       children: <Widget>[
+        if (data.isPreview) ...<Widget>[
+          const PreviewNotice(),
+          const SizedBox(height: AppSpacing.md),
+        ],
         AnimatedEntry(
           index: 0,
           child: GlassCard(
@@ -103,11 +108,18 @@ class _ResumeBody extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text(profile.fullName, style: AppType.headlineMedium()),
+                          Text(
+                            profile.fullName,
+                            style: AppType.headlineMedium(),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                           const SizedBox(height: 3),
                           Text(
                             profile.roles.join(' · '),
                             style: AppType.bodySmall(color: AppColors.accentSoft),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                           if (profile.location != null) ...<Widget>[
                             const SizedBox(height: 6),
@@ -272,8 +284,15 @@ class _Block extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text(title, style: AppType.titleLarge()),
-                const Spacer(),
+                Expanded(
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppType.titleLarge(),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 12),

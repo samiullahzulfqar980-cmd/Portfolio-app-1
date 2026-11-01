@@ -8,11 +8,11 @@ import '../../core/errors/app_failure.dart';
 import '../../core/providers/app_providers.dart';
 import '../../core/router/app_router.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 import '../../shared/widgets/app_background.dart';
 import '../../shared/widgets/app_buttons.dart';
 import '../../shared/widgets/feedback.dart';
+import '../../shared/widgets/scrollable_center.dart';
 import '../../shared/widgets/state_views.dart';
 
 /// Wraps every admin screen: requires a session *and* the admin role.
@@ -105,8 +105,7 @@ class _SignInRequired extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(AppSpacing.xl),
+    return ScrollableCenter(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
@@ -138,8 +137,7 @@ class _NotAdmin extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.all(AppSpacing.xl),
+    return ScrollableCenter(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[

@@ -58,13 +58,27 @@ class AuthScaffold extends StatelessWidget {
                     else
                       const SizedBox(width: 44),
                     const Spacer(),
-                    Text('OWNER ACCESS', style: AppType.overline(color: AppColors.textMuted)),
+                    Flexible(
+                      child: Text(
+                        'OWNER ACCESS',
+                        maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.end,
+                        style: AppType.overline(color: AppColors.textMuted),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.xxl),
                 Text(eyebrow.toUpperCase(), style: AppType.overline()),
                 const SizedBox(height: 8),
-                Text(title, style: AppType.displayMedium()),
+                Text(
+                  title,
+                  style: AppType.displayMedium(),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 const SizedBox(height: 10),
                 Text(subtitle, style: AppType.bodyLarge(color: AppColors.textSecondary)),
                 const SizedBox(height: AppSpacing.xl),
@@ -172,9 +186,14 @@ class PasswordStrength extends StatelessWidget {
               ),
             ],
             const SizedBox(width: 10),
-            Text(
-              _label,
-              style: AppType.labelSmall(color: _color).copyWith(fontSize: 10.5),
+            Flexible(
+              child: Text(
+                _label,
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.ellipsis,
+                style: AppType.labelSmall(color: _color).copyWith(fontSize: 10.5),
+              ),
             ),
           ],
         ),

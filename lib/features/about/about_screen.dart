@@ -23,6 +23,7 @@ import '../../shared/widgets/badges.dart';
 import '../../shared/widgets/feedback.dart';
 import '../../shared/widgets/glass_card.dart';
 import '../../shared/widgets/info_tiles.dart';
+import '../../shared/widgets/preview_notice.dart';
 import '../../shared/widgets/state_views.dart';
 
 class AboutScreen extends ConsumerWidget {
@@ -99,6 +100,10 @@ class _AboutBodyState extends ConsumerState<_AboutBody> {
       padding: EdgeInsets.fromLTRB(gutter, 8, gutter, 120),
       physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
       children: <Widget>[
+        if (data.isPreview) ...<Widget>[
+          const PreviewNotice(),
+          const SizedBox(height: AppSpacing.md),
+        ],
         AnimatedEntry(
           index: 0,
           child: Row(

@@ -384,7 +384,7 @@ class _ProjectEditorScreenState extends ConsumerState<ProjectEditorScreen> {
                   AppTextField(
                     controller: _title,
                     label: 'Title',
-                    hint: 'FinPulse — Fintech Wallet',
+                    hint: 'Acme Mobile — Companion app',
                     maxLength: 90,
                     textCapitalization: TextCapitalization.words,
                     validator: (String? value) =>
@@ -591,7 +591,16 @@ class _ProjectEditorScreenState extends ConsumerState<ProjectEditorScreen> {
                             : null,
                         icon: const Icon(Icons.remove_circle_outline_rounded),
                       ),
-                      Text('$_sortOrder', style: AppType.mono(size: 14, color: AppColors.textPrimary)),
+                      Flexible(
+                        child: Text(
+                          '$_sortOrder',
+                          maxLines: 1,
+                          softWrap: false,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: AppType.mono(size: 14, color: AppColors.textPrimary),
+                        ),
+                      ),
                       IconButton(
                         onPressed: () => setState(() => _sortOrder++),
                         icon: const Icon(Icons.add_circle_outline_rounded),

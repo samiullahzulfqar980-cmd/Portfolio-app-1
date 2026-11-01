@@ -177,12 +177,17 @@ class _ProjectDetailBody extends StatelessWidget {
                       children: <Widget>[
                         Row(
                           children: <Widget>[
-                            TagChip(label: project.category, selected: true),
+                            Flexible(child: TagChip(label: project.category, selected: true)),
                             if (project.year != null) ...<Widget>[
                               const SizedBox(width: 8),
-                              Text(
-                                project.year!,
-                                style: AppType.mono(size: 11.5, color: AppColors.textMuted),
+                              Flexible(
+                                child: Text(
+                                  project.year!,
+                                  maxLines: 1,
+                                  softWrap: false,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppType.mono(size: 11.5, color: AppColors.textMuted),
+                                ),
                               ),
                             ],
                             if (!project.isPublished) ...<Widget>[
@@ -192,7 +197,12 @@ class _ProjectDetailBody extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 14),
-                        Text(project.title, style: AppType.displayMedium()),
+                        Text(
+                          project.title,
+                          style: AppType.displayMedium(),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         const SizedBox(height: 10),
                         Text(
                           project.summary,
@@ -302,10 +312,15 @@ class _ProjectDetailBody extends StatelessWidget {
                           const SizedBox(height: 12),
                           Row(
                             children: <Widget>[
-                              Text(
-                                'Start a conversation',
-                                style: AppType.labelSmall(color: AppColors.accentSoft)
-                                    .copyWith(fontSize: 12.5),
+                              Flexible(
+                                child: Text(
+                                  'Start a conversation',
+                                  maxLines: 1,
+                                  softWrap: false,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppType.labelSmall(color: AppColors.accentSoft)
+                                      .copyWith(fontSize: 12.5),
+                                ),
                               ),
                               const SizedBox(width: 4),
                               const Icon(Icons.arrow_forward_rounded, size: 14, color: AppColors.accentSoft),

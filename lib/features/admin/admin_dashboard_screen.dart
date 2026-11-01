@@ -168,9 +168,14 @@ class AdminDashboardScreen extends ConsumerWidget {
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              Text(
-                                Formatters.relative(message.createdAt),
-                                style: AppType.mono(size: 10.5, color: AppColors.textMuted),
+                              Flexible(
+                                child: Text(
+                                  Formatters.relative(message.createdAt),
+                                  maxLines: 1,
+                                  softWrap: false,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppType.mono(size: 10.5, color: AppColors.textMuted),
+                                ),
                               ),
                             ],
                           ),

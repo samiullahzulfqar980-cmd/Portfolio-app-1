@@ -57,63 +57,66 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       backgroundColor: AppColors.background,
       body: AppBackground(
         showGrid: true,
-        child: Center(
-          child: Semantics(
-            label: 'Portfolio app loading',
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                AnimatedBuilder(
-                  animation: _controller,
-                  builder: (BuildContext context, Widget? child) {
-                    final double t = Curves.easeOutCubic.transform(_controller.value);
-                    return Opacity(
-                      opacity: t.clamp(0.0, 1.0).toDouble(),
-                      child: Transform.scale(scale: 0.88 + 0.12 * t, child: child),
-                    );
-                  },
-                  child: const _Monogram(size: 96),
-                ),
-                const SizedBox(height: 22),
-                Text('PORTFOLIO', style: AppType.overline(color: AppColors.accentSoft)),
-                const SizedBox(height: 10),
-                Text(
-                  'Design-minded engineering',
-                  style: AppType.bodySmall(color: AppColors.textMuted),
-                ),
-                const SizedBox(height: 34),
-                const SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
-                ),
-                if (!AppEnv.isConfigured) ...<Widget>[
-                  const SizedBox(height: 28),
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 40),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: AppColors.warning.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.warning.withValues(alpha: 0.28)),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        const Icon(Icons.science_outlined, size: 15, color: AppColors.warning),
-                        const SizedBox(width: 8),
-                        Flexible(
-                          child: Text(
-                            'Preview mode — connect Supabase in .env',
-                            style: AppType.labelSmall(color: AppColors.warning)
-                                .copyWith(fontSize: 11),
-                          ),
-                        ),
-                      ],
-                    ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 32),
+          child: Center(
+            child: Semantics(
+              label: 'Portfolio app loading',
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  AnimatedBuilder(
+                    animation: _controller,
+                    builder: (BuildContext context, Widget? child) {
+                      final double t = Curves.easeOutCubic.transform(_controller.value);
+                      return Opacity(
+                        opacity: t.clamp(0.0, 1.0).toDouble(),
+                        child: Transform.scale(scale: 0.88 + 0.12 * t, child: child),
+                      );
+                    },
+                    child: const _Monogram(size: 96),
                   ),
+                  const SizedBox(height: 22),
+                  Text('PORTFOLIO', style: AppType.overline(color: AppColors.accentSoft)),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Design-minded engineering',
+                    style: AppType.bodySmall(color: AppColors.textMuted),
+                  ),
+                  const SizedBox(height: 34),
+                  const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                  ),
+                  if (!AppEnv.isConfigured) ...<Widget>[
+                    const SizedBox(height: 28),
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 40),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: AppColors.warning.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.warning.withValues(alpha: 0.28)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          const Icon(Icons.science_outlined, size: 15, color: AppColors.warning),
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              'Preview mode — connect Supabase in .env',
+                              style: AppType.labelSmall(color: AppColors.warning)
+                                  .copyWith(fontSize: 11),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),

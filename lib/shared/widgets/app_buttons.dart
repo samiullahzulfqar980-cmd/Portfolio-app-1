@@ -36,16 +36,25 @@ class PrimaryActionButton extends StatelessWidget {
               width: 20,
               child: CircularProgressIndicator(strokeWidth: 2.2, color: Colors.white),
             )
-          : Row(
+          : FittedBox(
               key: const ValueKey<String>('label'),
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                if (icon != null) ...<Widget>[
-                  Icon(icon, size: 18, color: Colors.white),
-                  const SizedBox(width: 8),
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  if (icon != null) ...<Widget>[
+                    Icon(icon, size: 18, color: Colors.white),
+                    const SizedBox(width: 8),
+                  ],
+                  Text(
+                    label,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppType.labelLarge(color: Colors.white),
+                  ),
                 ],
-                Text(label, style: AppType.labelLarge(color: Colors.white)),
-              ],
+              ),
             ),
     );
 
@@ -128,7 +137,16 @@ class SecondaryActionButton extends StatelessWidget {
           Icon(icon, size: 18, color: AppColors.textPrimary),
           const SizedBox(width: 8),
         ],
-        if (!isLoading) Text(label, style: AppType.labelLarge()),
+        if (!isLoading)
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              softWrap: false,
+              overflow: TextOverflow.ellipsis,
+              style: AppType.labelLarge(),
+            ),
+          ),
       ],
     );
 
@@ -202,7 +220,18 @@ class PillButton extends StatelessWidget {
                   Icon(icon, size: 15, color: fg),
                   const SizedBox(width: 6),
                 ],
-                Text(label, style: AppType.labelSmall(color: fg).copyWith(fontSize: 12.5)),
+                // A pill can sit inside a `Wrap` or a `Positioned`, where the
+                // width is unbounded, so bound the label instead of flexing it.
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 200),
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppType.labelSmall(color: fg).copyWith(fontSize: 12.5),
+                  ),
+                ),
               ],
             ),
           ),

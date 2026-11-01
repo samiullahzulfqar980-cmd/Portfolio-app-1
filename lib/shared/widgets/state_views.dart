@@ -93,31 +93,34 @@ class EmptyStateView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
           horizontal: AppSpacing.xl,
           vertical: compact ? AppSpacing.xl : AppSpacing.xxxl,
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            _StateIcon(icon: icon, tone: AppColors.primarySoft),
-            const SizedBox(height: AppSpacing.lg),
-            Text(title, style: AppType.headlineMedium(), textAlign: TextAlign.center),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              message,
-              style: AppType.bodyMedium(color: AppColors.textMuted),
-              textAlign: TextAlign.center,
-            ),
-            if (actionLabel != null && onAction != null) ...<Widget>[
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              _StateIcon(icon: icon, tone: AppColors.primarySoft),
               const SizedBox(height: AppSpacing.lg),
-              SizedBox(
-                width: 220,
-                child: PrimaryActionButton(label: actionLabel!, onPressed: onAction),
+              Text(title, style: AppType.headlineMedium(), textAlign: TextAlign.center),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                message,
+                style: AppType.bodyMedium(color: AppColors.textMuted),
+                textAlign: TextAlign.center,
               ),
+              if (actionLabel != null && onAction != null) ...<Widget>[
+                const SizedBox(height: AppSpacing.lg),
+                SizedBox(
+                  width: 220,
+                  child: PrimaryActionButton(label: actionLabel!, onPressed: onAction),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

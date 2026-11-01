@@ -180,20 +180,32 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
                         const SizedBox(height: AppSpacing.sm),
                         Row(
                           children: <Widget>[
-                            Text(
-                              '${filtered.length} ${filtered.length == 1 ? 'project' : 'projects'}',
-                              style: AppType.labelSmall(color: AppColors.textSecondary),
+                            Flexible(
+                              child: Text(
+                                '${filtered.length} ${filtered.length == 1 ? 'project' : 'projects'}',
+                                maxLines: 1,
+                                softWrap: false,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppType.labelSmall(color: AppColors.textSecondary),
+                              ),
                             ),
                             if (_query.isNotEmpty || _category != null || _technology != null || _featuredOnly) ...<Widget>[
-                              const SizedBox(width: 10),
-                              TextButton(
-                                onPressed: _resetFilters,
-                                style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6),
-                                  minimumSize: const Size(0, 32),
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: TextButton(
+                                  onPressed: _resetFilters,
+                                  style: TextButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                                    minimumSize: const Size(0, 32),
+                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  child: const Text(
+                                    'Clear filters',
+                                    maxLines: 1,
+                                    softWrap: false,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
-                                child: const Text('Clear filters'),
                               ),
                             ],
                             const Spacer(),

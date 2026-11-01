@@ -47,9 +47,19 @@ class InfoRow extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(label, style: AppType.labelSmall(color: AppColors.textMuted)),
+                    Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppType.labelSmall(color: AppColors.textMuted),
+                    ),
                     const SizedBox(height: 2),
-                    Text(value, style: AppType.bodyMedium(color: AppColors.textPrimary)),
+                    Text(
+                      value,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppType.bodyMedium(color: AppColors.textPrimary),
+                    ),
                   ],
                 ),
               ),
@@ -126,13 +136,23 @@ class SkillBar extends StatelessWidget {
                 Expanded(
                   child: Text(
                     name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: AppType.bodyMedium(color: AppColors.textPrimary).copyWith(
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text('$proficiency%', style: AppType.mono(size: 11, color: AppColors.textMuted)),
+                Flexible(
+                  child: Text(
+                    '$proficiency%',
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppType.mono(size: 11, color: AppColors.textMuted),
+                  ),
+                ),
               ],
             ),
             if (note != null && note!.isNotEmpty) ...<Widget>[

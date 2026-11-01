@@ -75,10 +75,16 @@ class FeaturedProjectCard extends StatelessWidget {
                         children: <Widget>[
                           const Icon(Icons.auto_awesome_rounded, size: 11, color: Colors.white),
                           const SizedBox(width: 4),
-                          Text(
-                            'Featured',
-                            style: AppType.labelSmall(color: Colors.white)
-                                .copyWith(fontSize: 10, letterSpacing: 0.2),
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 110),
+                            child: Text(
+                              'Featured',
+                              maxLines: 1,
+                              softWrap: false,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppType.labelSmall(color: Colors.white)
+                                  .copyWith(fontSize: 10, letterSpacing: 0.2),
+                            ),
                           ),
                         ],
                       ),
@@ -91,7 +97,12 @@ class FeaturedProjectCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(project.title, style: AppType.titleLarge(), maxLines: 2),
+                  Text(
+                    project.title,
+                    style: AppType.titleLarge(),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   const SizedBox(height: 6),
                   Text(
                     project.summary,
@@ -113,17 +124,30 @@ class FeaturedProjectCard extends StatelessWidget {
                   const SizedBox(height: 14),
                   Row(
                     children: <Widget>[
-                      Text(
-                        'View case study',
-                        style: AppType.labelSmall(color: accentSoftFor(accent)).copyWith(
-                          fontSize: 12.5,
+                      Flexible(
+                        child: Text(
+                          'View case study',
+                          maxLines: 1,
+                          softWrap: false,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppType.labelSmall(color: accentSoftFor(accent)).copyWith(
+                            fontSize: 12.5,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 4),
                       Icon(Icons.arrow_forward_rounded, size: 14, color: accentSoftFor(accent)),
                       const Spacer(),
                       if (project.year != null)
-                        Text(project.year!, style: AppType.mono(size: 11, color: AppColors.textMuted)),
+                        Flexible(
+                          child: Text(
+                            project.year!,
+                            maxLines: 1,
+                            softWrap: false,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppType.mono(size: 11, color: AppColors.textMuted),
+                          ),
+                        ),
                     ],
                   ),
                 ],

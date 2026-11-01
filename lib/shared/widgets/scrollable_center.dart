@@ -25,7 +25,7 @@ class ScrollableCenter extends StatelessWidget {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         final double available = constraints.hasBoundedHeight
-            ? math.max(0, constraints.maxHeight - padding.vertical)
+            ? math.max(0.0, constraints.maxHeight - padding.vertical)
             : 0;
         return SingleChildScrollView(
           padding: padding,

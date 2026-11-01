@@ -116,6 +116,7 @@ lib/
 supabase/
   migrations/                  Schema, RLS, storage policies
   seed.sql                     Sample content
+web/                           Chrome/web shell: index.html, manifest, icons
 assets/
   fonts/ images/ branding/     Fonts, generated artwork, app icon source
 ```

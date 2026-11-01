@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Download the portfolio app</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="assets/app-icon.png">
+<style>
+:root{--bg:#06080F;--surface:#0E1425;--primary:#7C5CFF;--accent:#2EE6D6;--text:#F5F7FC;--text2:#ACB4C8;--muted:#7A849C;--border:rgba(255,255,255,.12)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;padding:56px 20px 60px;color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased;
+  background:radial-gradient(900px 600px at 15% -10%,rgba(124,92,255,.30),transparent 60%),radial-gradient(700px 500px at 90% 0%,rgba(46,230,214,.15),transparent 62%),var(--bg)}
+.wrap{max-width:760px;margin:0 auto}
+a{color:#7CF2E8}
+.pill{display:inline-block;border:1px solid rgba(255,196,107,.5);border-radius:999px;padding:4px 11px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#FFD9A3}
+h1{font-size:30px;line-height:1.15;letter-spacing:-.03em;margin:16px 0 10px}
+h1 span{background:linear-gradient(100deg,#9B85FF,#2EE6D6);-webkit-background-clip:text;background-clip:text;color:transparent}
+p.lead{color:var(--text2);font-size:14.5px;line-height:1.65;margin:0 0 26px;max-width:60ch}
+h2{font-size:15px;letter-spacing:.02em;margin:32px 0 12px;color:var(--text)}
+.dl{display:flex;gap:14px;padding:15px;border-radius:16px;border:1px solid var(--border);background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.02));text-decoration:none;color:inherit;margin-bottom:11px;transition:transform .18s ease,border-color .18s ease}
+.dl:hover{transform:translateY(-2px);border-color:rgba(46,230,214,.45)}
+.dl-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;flex:0 0 auto;font-size:17px;font-weight:800;color:#0A0714;background:linear-gradient(135deg,var(--primary),var(--accent))}
+.dl-body{min-width:0;flex:1}
+.dl-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.dl-title{font-size:14px;font-weight:750;letter-spacing:-.01em}
+.dl-badge{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:#7CF2E8;border:1px solid rgba(46,230,214,.35);border-radius:999px;padding:2px 8px}
+.dl-desc{display:block;font-size:12.5px;color:var(--text2);line-height:1.55;margin:4px 0 6px}
+.dl-meta{display:block;font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.steps{padding:16px;border-radius:16px;border:1px solid var(--border);background:rgba(255,255,255,.03);margin-bottom:14px}
+ol{margin:0;padding-left:20px;color:var(--text2);font-size:13px;line-height:1.85}
+ol li::marker{color:var(--accent)}
+code{background:rgba(255,255,255,.09);padding:2px 6px;border-radius:5px;font-size:11.5px;color:#D9E1F5}
+.note{font-size:12.5px;color:var(--muted);line-height:1.65;border-left:2px solid rgba(255,196,107,.5);padding-left:12px}
+.back{display:inline-block;margin-top:26px;font-size:12.5px;font-weight:650;text-decoration:none}
+.empty{color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="pill">Downloads</span>
+  <h1>Take the app <span>with you</span></h1>
+  <p class="lead">The portfolio is a Flutter mobile app (Android + iOS, also runs in Chrome). Pick an archive, then follow the steps below to run it locally.</p>
+
+  
+      <a class="dl" href="../portfolio-app.zip" download="portfolio-app.zip">
+        <span class="dl-icon" aria-hidden="true">↓</span>
+        <span class="dl-body">
+          <span class="dl-top"><span class="dl-title">Complete project (recommended)</span><span class="dl-badge">Full app</span></span>
+          <span class="dl-desc">Everything needed to build and run: lib, assets, android, ios, web, supabase SQL, README, pubspec.</span>
+          <span class="dl-meta">portfolio-app.zip · 17.8 MB</span>
+        </span>
+      </a>
+      <a class="dl" href="../portfolio-app-flutter.zip" download="portfolio-app-flutter.zip">
+        <span class="dl-icon" aria-hidden="true">↓</span>
+        <span class="dl-body">
+          <span class="dl-top"><span class="dl-title">Flutter project</span><span class="dl-badge">Full app</span></span>
+          <span class="dl-desc">The same complete project, packaged for a Flutter-savvy recipient.</span>
+          <span class="dl-meta">portfolio-app-flutter.zip · 17.8 MB</span>
+        </span>
+      </a>
+      <a class="dl" href="../portfolio-app-source-code.zip" download="portfolio-app-source-code.zip">
+        <span class="dl-icon" aria-hidden="true">↓</span>
+        <span class="dl-body">
+          <span class="dl-top"><span class="dl-title">Source code only</span><span class="dl-badge">Source</span></span>
+          <span class="dl-desc">Dart lib, Supabase migrations + seed, tests and the README — no platform folders or images.</span>
+          <span class="dl-meta">portfolio-app-source-code.zip · 639 KB</span>
+        </span>
+      </a>
+      <a class="dl" href="../portfolio-app-dart-files.zip" download="portfolio-app-dart-files.zip">
+        <span class="dl-icon" aria-hidden="true">↓</span>
+        <span class="dl-body">
+          <span class="dl-top"><span class="dl-title">Dart files only</span><span class="dl-badge">Dart</span></span>
+          <span class="dl-desc">Just lib/, test/ and pubspec.yaml for pasting into an existing Flutter project.</span>
+          <span class="dl-meta">portfolio-app-dart-files.zip · 158 KB</span>
+        </span>
+      </a>
+
+  <h2>Run it in two minutes</h2>
+  <div class="steps">
+    <ol>
+      <li>Unzip the archive and <code>cd portfolio_app</code>.</li>
+      <li>Install Flutter 3.24+ and run <code>flutter pub get</code>.</li>
+      <li>Copy <code>.env.example</code> to <code>.env</code> and add your Supabase URL + anon key.</li>
+      <li><code>flutter run</code> on a phone, or <code>flutter run -d chrome --dart-define-from-file=.env</code>.</li>
+      <li>In Supabase: run the three files in <code>supabase/migrations/</code> in order, then <code>supabase/seed.sql</code>.</li>
+      <li>Grant admin: insert your auth user into <code>public.admin_users</code> (see README).</li>
+    </ol>
+  </div>
+  <p class="note">Without the Supabase keys the app runs in preview mode with the bundled sample content — that is the only case where sample data is shown. With keys configured, every profile, project, skill, service, timeline entry, inquiry and file comes from Supabase.</p>
+
+  <a class="back" href="index.html">← Back to the design preview</a>
+</div>
+</body>
+</html>

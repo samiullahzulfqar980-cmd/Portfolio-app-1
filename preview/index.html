@@ -1,0 +1,849 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portfolio app — design preview</title>
+<meta name="description" content="Interactive design preview of the Flutter + Supabase portfolio app. Preview only — the shipped product is a native Flutter app.">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="assets/app-icon.png">
+<style>
+:root{
+  --bg:#06080F; --bg2:#0A0E1A; --surface:#0E1425; --surface-alt:#141C31;
+  --primary:#7C5CFF; --primary-soft:#9B85FF; --accent:#2EE6D6; --accent-soft:#7CF2E8;
+  --text:#F5F7FC; --text2:#ACB4C8; --muted:#7A849C;
+  --border:rgba(255,255,255,.12); --border-strong:rgba(255,255,255,.2);
+  --warn:#FFC46B; --danger:#FF6B81;
+  --radius:18px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{
+  background:
+    radial-gradient(900px 600px at 18% -8%, rgba(124,92,255,.30), transparent 60%),
+    radial-gradient(760px 520px at 88% 4%, rgba(46,230,214,.16), transparent 62%),
+    radial-gradient(800px 700px at 50% 110%, rgba(124,92,255,.12), transparent 65%),
+    var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  padding:64px 20px 40px;
+}
+a{color:var(--accent-soft)}
+
+/* preview banner */
+.banner{
+  position:fixed;inset:0 0 auto 0;z-index:50;display:flex;gap:14px;align-items:center;justify-content:center;
+  flex-wrap:wrap;padding:10px 18px;font-size:12.5px;letter-spacing:.01em;
+  background:rgba(255,196,107,.10);border-bottom:1px solid rgba(255,196,107,.28);
+  backdrop-filter:blur(14px);color:#FFD9A3;
+}
+.banner b{color:#FFE7C4}
+.banner a{color:#FFD9A3;font-weight:600}
+.banner .pill{border:1px solid rgba(255,196,107,.5);border-radius:999px;padding:3px 10px;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+
+/* stage */
+.stage{display:flex;gap:44px;align-items:flex-start;justify-content:center;flex-wrap:wrap;max-width:1180px;margin:0 auto}
+.side{max-width:330px;padding-top:8px}
+.side h1{font-size:26px;line-height:1.2;margin:0 0 10px;letter-spacing:-.02em}
+.side h1 span{background:linear-gradient(100deg,#9B85FF,#2EE6D6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.side p{color:var(--text2);font-size:14px;line-height:1.65;margin:0 0 14px}
+.side ul{margin:0 0 18px;padding-left:18px;color:var(--text2);font-size:13.5px;line-height:1.7}
+.side li::marker{color:var(--accent)}
+.side .note{font-size:12.5px;color:var(--muted);border-left:2px solid rgba(255,196,107,.5);padding-left:12px;margin:0 0 18px;line-height:1.6}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+
+/* phone */
+.phone{
+  position:relative;width:400px;height:min(838px, calc(100vh - 130px));min-height:620px;
+  border-radius:46px;padding:9px;
+  background:linear-gradient(160deg,rgba(255,255,255,.16),rgba(255,255,255,.04) 40%,rgba(255,255,255,.10));
+  box-shadow:0 60px 120px -30px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.08),inset 0 1px 0 rgba(255,255,255,.35);
+  flex:0 0 auto;
+}
+.screen-frame{position:relative;height:100%;border-radius:38px;overflow:hidden;background:var(--bg);isolation:isolate}
+.screen-frame::before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(420px 300px at 10% -5%, rgba(124,92,255,.34), transparent 62%),
+    radial-gradient(380px 300px at 95% 6%, rgba(46,230,214,.16), transparent 60%),
+    linear-gradient(180deg,#0A0E1A,#06080F 55%);
+}
+.statusbar{position:relative;z-index:3;display:flex;justify-content:space-between;align-items:center;padding:12px 26px 2px;font-size:11.5px;font-weight:600;color:var(--text2);letter-spacing:.02em}
+.statusbar .icons{display:flex;gap:5px;align-items:center}
+.statusbar .icons i{display:block;width:14px;height:9px;border-radius:2px;background:var(--text2);opacity:.75}
+.statusbar .icons i.batt{width:20px;border:1px solid rgba(255,255,255,.5);background:linear-gradient(90deg,var(--text2) 62%,transparent 62%)}
+
+.viewport{position:absolute;inset:0;z-index:1}
+.screen{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;display:none;scrollbar-width:thin}
+.screen.on{display:block;animation:fade .28s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.appbar{position:sticky;top:0;z-index:4;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:34px 18px 10px;background:linear-gradient(180deg,rgba(6,8,15,.94),rgba(6,8,15,.55) 70%,transparent);backdrop-filter:blur(10px)}
+.brand{display:flex;align-items:center;gap:9px;min-width:0}
+.brand-mark{display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--primary),var(--accent));font-weight:800;font-size:13px;color:#fff}
+.overline{margin:0;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--text2);font-weight:700}
+.overline.accent{color:var(--accent-soft)}
+.icon-btn{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text2);cursor:pointer}
+.appbar-title{font-size:15px;font-weight:700}
+
+.body{padding:6px 18px 104px}
+.hero{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+.hero-text{min-width:0}
+.badge{display:inline-flex;align-items:center;gap:7px;padding:6px 11px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:.01em;background:rgba(74,222,128,.10);color:#8BF0AE;border:1px solid rgba(74,222,128,.32);max-width:100%}
+.badge .dot{width:6px;height:6px;border-radius:50%;background:#4ADE80;box-shadow:0 0 0 0 rgba(74,222,128,.6);animation:pulse 2.2s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 7px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}
+.badge.sm{font-size:10.5px;padding:5px 9px}
+.hello{margin:16px 0 0;font-size:14px;color:var(--muted)}
+h1.name{margin:2px 0 12px;font-size:31px;line-height:1.1;letter-spacing:-.03em;font-weight:800}
+.name.sm{font-size:19px;margin:0 0 3px;font-weight:750;letter-spacing:-.02em}
+.avatar{width:74px;height:74px;border-radius:22px;object-fit:cover;border:1px solid var(--border-strong);flex:0 0 auto;box-shadow:0 14px 30px -12px rgba(0,0,0,.9)}
+.avatar.lg{width:82px;height:82px;border-radius:26px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 12px}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text2);font-size:11.5px;font-weight:600;white-space:nowrap}
+.chip.accent{color:var(--accent-soft);border-color:rgba(46,230,214,.3);background:rgba(46,230,214,.10)}
+.chip.sm{font-size:10px;padding:4px 8px;font-weight:600}
+.intro{margin:0 0 12px;color:var(--text2);font-size:14px;line-height:1.6}
+.meta{margin:0 0 12px;font-size:11.5px;color:var(--muted)}
+.actions{display:flex;flex-wrap:wrap;gap:9px;margin:16px 0 20px}
+.btn{font:inherit;font-size:13px;font-weight:700;border-radius:14px;padding:13px 16px;border:1px solid transparent;cursor:pointer;transition:transform .15s ease,filter .15s ease;flex:1 1 auto;min-width:0}
+.btn:active{transform:scale(.985)}
+.btn.primary{background:linear-gradient(100deg,var(--primary),var(--accent));color:#0A0714;box-shadow:0 14px 30px -14px rgba(124,92,255,.9)}
+.btn.ghost{background:rgba(255,255,255,.05);border-color:var(--border);color:var(--text)}
+.btn.wide{flex-basis:100%}
+.btn:hover{filter:brightness(1.06)}
+
+.card{padding:16px;border-radius:var(--radius);border:1px solid var(--border);background:linear-gradient(160deg,rgba(255,255,255,.055),rgba(255,255,255,.02));margin-bottom:16px}
+.stats{display:flex;gap:12px;justify-content:space-between}
+.stat{flex:1;min-width:0}
+.stat-value{margin:0;font-size:14.5px;font-weight:750;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat-label{margin:2px 0 0;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.stat-dot{display:block;width:16px;height:3px;border-radius:2px;background:var(--accent);margin-bottom:8px}
+
+.section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin:22px 0 12px}
+.section-head h2{margin:3px 0 0;font-size:18px;letter-spacing:-.02em;font-weight:750}
+.link{background:none;border:0;padding:0;font:inherit;font-size:12px;font-weight:650;color:var(--accent-soft);cursor:pointer;white-space:nowrap}
+.screen-title{font-size:29px;line-height:1.12;letter-spacing:-.03em;margin:2px 0 10px;font-weight:800}
+
+/* project cards */
+.project-card{display:block;width:100%;text-align:left;padding:0;margin:0 0 14px;border-radius:20px;overflow:hidden;border:1px solid var(--border);background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.02));color:inherit;font:inherit;cursor:pointer;transition:transform .18s ease,border-color .18s ease}
+.project-card:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.24)}
+.cover{position:relative;display:block;aspect-ratio:16/10;background:var(--surface-alt)}
+.cover img{width:100%;height:100%;object-fit:cover;display:block}
+.flag{position:absolute;top:10px;right:10px;padding:4px 9px;border-radius:999px;font-size:10px;font-weight:800;letter-spacing:.04em;color:#0A0714;background:linear-gradient(100deg,var(--primary),var(--accent))}
+.cat{position:absolute;left:10px;bottom:10px;padding:4px 9px;border-radius:999px;font-size:10.5px;font-weight:700;color:#fff;background:rgba(6,8,15,.72);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(6px)}
+.pc-body{display:block;padding:14px}
+.pc-title{display:block;font-size:15px;font-weight:750;letter-spacing:-.01em;margin-bottom:5px}
+.pc-summary{display:block;font-size:12.5px;color:var(--text2);line-height:1.55;margin-bottom:10px}
+.pc-foot{display:flex;justify-content:space-between;align-items:center;margin-top:11px;font-size:11.5px}
+.year{font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+.project-row{display:flex;gap:12px;width:100%;text-align:left;padding:12px;margin:0 0 11px;border-radius:18px;border:1px solid var(--border);background:linear-gradient(160deg,rgba(255,255,255,.055),rgba(255,255,255,.02));color:inherit;font:inherit;cursor:pointer;transition:transform .18s ease,border-color .18s ease}
+.project-row:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.24)}
+.thumb{width:88px;height:88px;border-radius:13px;object-fit:cover;flex:0 0 auto;border:1px solid var(--border)}
+.pr-body{min-width:0;flex:1}
+.pr-top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.pr-title{font-size:14px;font-weight:750;letter-spacing:-.01em}
+.pr-cat{display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-soft);font-weight:700;margin:2px 0 5px}
+.pr-summary{display:block;font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* search + filters */
+.search{display:flex;align-items:center;gap:9px;padding:12px 14px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);margin-bottom:12px}
+.search input{flex:1;min-width:0;background:none;border:0;outline:none;color:var(--text);font:inherit;font-size:13px}
+.search input::placeholder{color:var(--muted)}
+.chips.filter{margin-bottom:10px}
+.filter-chip{font:inherit;font-size:11.5px;font-weight:650;cursor:pointer}
+.filter-chip.on{background:linear-gradient(100deg,rgba(124,92,255,.85),rgba(46,230,214,.75));color:#0A0714;border-color:transparent}
+.list-count{display:flex;align-items:center;gap:10px;font-size:11.5px;color:var(--text2);margin:0 0 12px}
+.empty{color:var(--muted);font-size:13px;text-align:center;padding:26px 0}
+
+/* about */
+.profile-row{display:flex;gap:14px;align-items:center;margin-bottom:16px}
+.profile-row.tight{margin-bottom:0}
+.roles{margin:0 0 8px;font-size:11.5px;color:var(--accent-soft);font-weight:600}
+.bio{margin:0 0 11px;font-size:13px;line-height:1.65;color:var(--text2)}
+.bio:last-child{margin-bottom:0}
+.divider{height:1px;background:var(--border);margin:14px 0}
+.info-row{display:flex;justify-content:space-between;gap:14px;padding:6px 0;font-size:12px;color:var(--muted)}
+.info-row b{color:var(--text);font-weight:600;text-align:right;min-width:0;overflow-wrap:anywhere}
+.skill{margin-bottom:14px}
+.skill:last-child{margin-bottom:0}
+.skill-top{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;font-weight:600;margin-bottom:7px}
+.mono{font-variant-numeric:tabular-nums;color:var(--muted);font-size:11px}
+.bar{height:6px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--primary),var(--accent))}
+.skill-note{margin:6px 0 0;font-size:10.5px;color:var(--muted)}
+.timeline{padding-top:18px}
+.timeline-row{display:flex;gap:11px;padding-bottom:16px;position:relative}
+.timeline-row:last-child{padding-bottom:0}
+.timeline-row::before{content:"";position:absolute;left:4px;top:14px;bottom:0;width:1px;background:var(--border)}
+.timeline-row:last-child::before{display:none}
+.tl-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);margin-top:5px;flex:0 0 auto;box-shadow:0 0 0 3px rgba(46,230,214,.14)}
+.tl-role{margin:0;font-size:13px;font-weight:700}
+.tl-org{margin:2px 0 5px;font-size:11.5px;color:var(--text2);display:flex;gap:8px;flex-wrap:wrap}
+.tl-span{color:var(--muted);font-size:10.5px;font-variant-numeric:tabular-nums}
+.tl-desc{margin:0;font-size:11.5px;color:var(--muted);line-height:1.55}
+
+/* services */
+.service{display:flex;gap:12px;padding:13px;border-radius:16px;border:1px solid var(--border);background:linear-gradient(160deg,rgba(124,92,255,.12),rgba(46,230,214,.05));margin-bottom:10px}
+.service-icon{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;flex:0 0 auto;background:linear-gradient(150deg,rgba(124,92,255,.28),rgba(46,230,214,.14));border:1px solid var(--border);color:var(--accent-soft)}
+.service-title{margin:0;font-size:13px;font-weight:700}
+.service-desc{margin:3px 0 8px;font-size:11.5px;color:var(--text2);line-height:1.55}
+
+/* cta + forms */
+.cta{background:linear-gradient(150deg,rgba(124,92,255,.16),rgba(46,230,214,.08));border-color:rgba(124,92,255,.35)}
+.cta h3{margin:8px 0 6px;font-size:17px;letter-spacing:-.02em}
+.cta p{margin:0 0 12px;font-size:12.5px;color:var(--text2);line-height:1.6}
+.footer{text-align:center;font-size:10.5px;color:var(--muted);margin:22px 0 0}
+.contact-card .chips{margin:0}
+.form .field{margin-bottom:12px}
+.field label{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.field .opt{text-transform:none;letter-spacing:0;font-weight:500;opacity:.8}
+.field input,.field textarea{width:100%;padding:12px 13px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);font:inherit;font-size:13px;outline:none;resize:vertical;transition:border-color .15s ease}
+.field input:focus,.field textarea:focus{border-color:rgba(46,230,214,.6);box-shadow:0 0 0 3px rgba(46,230,214,.12)}
+.field input::placeholder,.field textarea::placeholder{color:var(--muted)}
+.field.invalid input,.field.invalid textarea{border-color:rgba(255,107,129,.7)}
+.form-error{margin:0 0 10px;font-size:11.5px;color:#FF9DAC}
+.hint{margin:10px 0 0;font-size:10.5px;color:var(--muted);line-height:1.55}
+.hint code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:5px;font-size:10px}
+.success{text-align:center}
+.success-icon{display:grid;place-items:center;width:46px;height:46px;margin:2px auto 12px;border-radius:50%;background:rgba(74,222,128,.14);border:1px solid rgba(74,222,128,.4);color:#8BF0AE;font-size:20px}
+.success h3{margin:0 0 6px;font-size:16px}
+.success p{margin:0 0 14px;font-size:12px;color:var(--text2);line-height:1.6}
+
+/* tab bar */
+.tabbar{position:absolute;left:14px;right:14px;bottom:16px;z-index:6;display:flex;gap:2px;padding:7px 6px;border-radius:24px;border:1px solid var(--border-strong);background:linear-gradient(150deg,rgba(20,28,49,.97),rgba(14,20,37,.99));box-shadow:0 18px 40px -18px rgba(0,0,0,.95);backdrop-filter:blur(18px)}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 2px;border:0;border-radius:18px;background:none;color:var(--muted);font:inherit;font-size:10px;font-weight:650;letter-spacing:.01em;cursor:pointer;transition:background .2s ease,color .2s ease}
+.tab.on{color:var(--text);background:linear-gradient(150deg,rgba(124,92,255,.30),rgba(46,230,214,.14))}
+
+/* detail sheet */
+.sheet{position:absolute;inset:0;z-index:8;background:linear-gradient(180deg,#0A0E1A,#06080F);overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1);display:block}
+.sheet.open{transform:none}
+.sheet-hero{position:relative;aspect-ratio:16/11;background:var(--surface-alt)}
+.sheet-hero img{width:100%;height:100%;object-fit:cover;display:block}
+.sheet-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,8,15,.15),rgba(6,8,15,.92))}
+.sheet-back{position:absolute;top:16px;left:16px;z-index:2;width:38px;height:38px;border-radius:12px;border:1px solid var(--border-strong);background:rgba(6,8,15,.6);color:var(--text);display:grid;place-items:center;cursor:pointer;backdrop-filter:blur(8px);font-size:16px}
+.sheet-body{padding:0 18px 100px;margin-top:-46px;position:relative;z-index:2}
+.sheet-cat{display:inline-flex;gap:8px;align-items:center;margin-bottom:10px}
+.sheet h2{margin:0 0 8px;font-size:23px;letter-spacing:-.025em;line-height:1.15}
+.sheet .summary{font-size:13px;color:var(--text2);line-height:1.6;margin:0 0 16px}
+.sheet .para{font-size:12.5px;color:var(--text2);line-height:1.7;margin:0 0 12px}
+.sheet-actions{display:flex;gap:9px;flex-wrap:wrap;margin:16px 0 4px}
+
+@media (max-width:900px){
+  body{padding:74px 12px 28px}
+  .side{max-width:400px;order:2}
+  .phone{width:100%;max-width:400px}
+}
+@media (max-width:430px){
+  body{padding:70px 8px 20px}
+  .phone{height:calc(100vh - 96px);min-height:560px;border-radius:34px;padding:6px}
+  .screen-frame{border-radius:29px}
+  .banner{font-size:11px;gap:8px;padding:8px 12px}
+  .banner .long{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<div class="banner" role="note">
+  <span class="pill">Design preview</span>
+  <span class="long">This is a <b>web mock-up</b> of the screens. The real product is a <b>Flutter</b> mobile app — download it below.</span>
+  <span class="long">·</span>
+  <a href="downloads.html">Get the app &amp; source →</a>
+</div>
+
+<main class="stage">
+  <aside class="side">
+    <h1>Portfolio app<br><span>Flutter + Supabase</span></h1>
+    <p>A native mobile portfolio: dark aurora theme, four tabs, project case studies, an inquiry form and an owner-only admin area.</p>
+    <ul>
+      <li>Everything rendered here is read from the app’s own seed data — the same rows the app loads from Supabase.</li>
+      <li>Try it: switch tabs, search and filter projects, open a case study, filter skills, submit the inquiry form.</li>
+    </ul>
+    <p class="note">Preview only. This page is HTML so the design can be reviewed in a browser; it is <b>not</b> the app and no data is sent anywhere. The shipped app is compiled Flutter — see the download page.</p>
+    <div class="btn-row">
+      <a class="btn primary" href="downloads.html" style="text-decoration:none;text-align:center;flex:0 0 auto">Download the app</a>
+      <a class="btn ghost" href="downloads.html#source" style="text-decoration:none;text-align:center;flex:0 0 auto">Source code</a>
+    </div>
+  </aside>
+
+  <div class="phone">
+    <div class="screen-frame">
+      <div class="statusbar">
+        <span>9:41</span>
+        <span class="icons"><i></i><i></i><i class="batt"></i></span>
+      </div>
+      <div class="viewport">
+        <section class="screen on" data-screen="home" aria-label="Home">
+    <div class="appbar">
+      <div class="brand"><span class="brand-mark">S</span><span class="overline">Portfolio</span></div>
+      <span class="icon-btn" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></span>
+    </div>
+    <div class="body">
+      <div class="hero">
+        <div class="hero-text">
+          <span class="badge avail"><i class="dot"></i>Open to freelance projects and full-time roles</span>
+          <p class="hello">Hello, I am</p>
+          <h1 class="name">Samiullah Zulfqar</h1>
+        </div>
+        <img class="avatar" src="assets/avatar.jpg" alt="Portrait of Samiullah Zulfqar">
+      </div>
+      <div class="chips"><span class="chip accent">⚡ Flutter Developer</span><span class="chip accent">⚡ React Native Engineer</span><span class="chip accent">⚡ Full-Stack Web</span></div>
+      <p class="intro">I design and build fast, accessible cross-platform apps and the web platforms behind them.</p>
+      <p class="meta">📍 Islamabad, Pakistan · UTC+5</p>
+      <div class="chips"><span class="chip"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.56-1.11-4.56-4.95 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.85-2.35 4.7-4.58 4.94.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/></svg><span>GitHub</span></span><span class="chip"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.5 15.2L2 22l4.9-1.4A10 10 0 1 0 12 2Zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 1 1 12 20Z"/><path d="M8.5 7.6c.2 0 .4 0 .5.4l.7 1.6c.1.2 0 .4-.1.5l-.5.6c-.1.2-.2.3 0 .6.4.7 1.5 1.8 2.3 2.1.3.1.5.1.6-.1l.5-.6c.2-.2.3-.2.5-.1l1.6.8c.2.1.3.2.3.4 0 .9-.7 1.6-1.5 1.7-.8.1-1.7-.2-3-1-1.4-.8-2.4-2.1-2.8-2.8-.4-.7-.6-1.4-.5-2 .1-.8.7-1.4 1.3-1.4Z"/></svg><span>WhatsApp</span></span><span class="chip"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"/></svg><span>Website</span></span></div>
+      <div class="actions">
+        <button class="btn primary" data-goto="projects">Explore projects</button>
+        <button class="btn ghost" data-goto="contact">Hire me</button>
+        <button class="btn ghost wide" data-goto="resume">View résumé</button>
+      </div>
+
+      <div class="stats card">
+        <div class="stat"><i class="stat-dot"></i><p class="stat-value">Mobile + Web</p><p class="stat-label">Focus</p></div><div class="stat"><p class="stat-value">Flutter · RN · TS</p><p class="stat-label">Stack</p></div><div class="stat"><p class="stat-value">Islamabad, PK</p><p class="stat-label">Based in</p></div>
+      </div>
+
+      <div class="section-head">
+        <div><p class="overline accent">Selected work</p><h2>Featured projects</h2></div>
+        <button class="link" data-goto="projects">All projects →</button>
+      </div>
+      
+      <button class="project-card" data-slug="finpulse-fintech-wallet" style="--accent:#7C5CFF">
+        <span class="cover"><img src="assets/projects/finpulse.jpg" alt="Cover for FinPulse — Fintech Wallet" loading="lazy">
+          <span class="flag">Featured</span>
+          <span class="cat">Mobile</span>
+        </span>
+        <span class="pc-body">
+          <span class="pc-title">FinPulse — Fintech Wallet</span>
+          <span class="pc-summary">A cross-platform wallet concept with a live market feed, budget insights and biometric unlock.</span>
+          <span class="chips"><span class="chip sm">Flutter</span><span class="chip sm">Dart</span><span class="chip sm">Riverpod</span><span class="chip sm">Supabase</span></span>
+          <span class="pc-foot"><span class="link">View case study →</span><span class="year">2025</span></span>
+        </span>
+      </button>
+      <button class="project-card" data-slug="devflow-developer-workspace" style="--accent:#2EE6D6">
+        <span class="cover"><img src="assets/projects/devflow.jpg" alt="Cover for DevFlow — Developer Workspace" loading="lazy">
+          <span class="flag">Featured</span>
+          <span class="cat">Web</span>
+        </span>
+        <span class="pc-body">
+          <span class="pc-title">DevFlow — Developer Workspace</span>
+          <span class="pc-summary">A web workspace for snippets, reviews and release notes with keyboard-first navigation.</span>
+          <span class="chips"><span class="chip sm">Next.js</span><span class="chip sm">TypeScript</span><span class="chip sm">PostgreSQL</span><span class="chip sm">Tailwind</span></span>
+          <span class="pc-foot"><span class="link">View case study →</span><span class="year">2025</span></span>
+        </span>
+      </button>
+
+      <div class="section-head"><div><p class="overline accent">Services</p><h2>What I deliver</h2></div></div>
+      
+    <div class="service">
+      <span class="service-icon"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm4 17h2"/></svg></span>
+      <div><p class="service-title">Cross-platform mobile apps</p><p class="service-desc">Production Flutter and React Native apps with native-feeling motion, offline support and clean architecture.</p><div class="chips"><span class="chip sm">Flutter</span><span class="chip sm">React Native</span><span class="chip sm">Expo</span></div></div>
+    </div>
+    <div class="service">
+      <span class="service-icon"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></span>
+      <div><p class="service-title">Full-stack web platforms</p><p class="service-desc">Fast, accessible web front ends backed by typed APIs, authentication and a database you can audit.</p><div class="chips"><span class="chip sm">Next.js</span><span class="chip sm">TypeScript</span><span class="chip sm">PostgreSQL</span></div></div>
+    </div>
+    <div class="service">
+      <span class="service-icon"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></span>
+      <div><p class="service-title">Backend &amp; API architecture</p><p class="service-desc">Schema design, row-level security, storage policies and API layers that keep data safe by default.</p><div class="chips"><span class="chip sm">Supabase</span><span class="chip sm">Node.js</span><span class="chip sm">REST</span></div></div>
+    </div>
+    <div class="service">
+      <span class="service-icon"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 3v18M3 12h18"/></svg></span>
+      <div><p class="service-title">UI engineering &amp; polish</p><p class="service-desc">Design systems, motion and accessibility passes that make an existing product feel considered.</p><div class="chips"><span class="chip sm">Design tokens</span><span class="chip sm">Motion</span><span class="chip sm">A11y</span></div></div>
+    </div>
+
+      <div class="card cta">
+        <p class="overline accent">🚀 Open for work</p>
+        <h3>Have something in mind?</h3>
+        <p>Send a short brief and I will reply with next steps, timeline and scope.</p>
+        <button class="link" data-goto="contact">Start a conversation →</button>
+      </div>
+      <p class="footer">© 2026 Samiullah Zulfqar</p>
+    </div>
+        </section>
+        <section class="screen" data-screen="projects" aria-label="Projects">
+    <div class="appbar"><div class="brand"><span class="brand-mark">S</span><span class="overline">Portfolio</span></div></div>
+    <div class="body">
+      <p class="overline accent">Work</p>
+      <h1 class="screen-title">Projects</h1>
+      <p class="intro">Six published builds across mobile, web and full-stack — filter by platform or technology.</p>
+
+      <label class="search">
+        <span aria-hidden="true">⌕</span>
+        <input id="project-search" type="search" placeholder="Search projects, tech or category" aria-label="Search projects">
+      </label>
+
+      <div class="chips filter" id="category-filters">
+        <button class="chip filter-chip on" data-category="All">All</button><button class="chip filter-chip" data-category="Full-stack">Full-stack</button><button class="chip filter-chip" data-category="Mobile">Mobile</button><button class="chip filter-chip" data-category="Web">Web</button>
+      </div>
+
+      <p class="list-count"><span id="project-count">6 projects</span><button class="link" id="clear-filters" hidden>Clear filters</button></p>
+      <div id="project-list">
+        
+      <button class="project-row" data-slug="finpulse-fintech-wallet" data-title="finpulse — fintech wallet" data-category="Mobile" data-tech="Flutter Dart Riverpod Supabase">
+        <img class="thumb" src="assets/projects/finpulse.jpg" alt="" loading="lazy" style="--accent:#7C5CFF">
+        <span class="pr-body">
+          <span class="pr-top"><span class="pr-title">FinPulse — Fintech Wallet</span><span class="year">2025</span></span>
+          <span class="pr-cat">Mobile</span>
+          <span class="pr-summary">A cross-platform wallet concept with a live market feed, budget insights and biometric unlock.</span>
+          <span class="chips"><span class="chip sm">Flutter</span><span class="chip sm">Dart</span><span class="chip sm">Riverpod</span></span>
+        </span>
+      </button>
+      <button class="project-row" data-slug="devflow-developer-workspace" data-title="devflow — developer workspace" data-category="Web" data-tech="Next.js TypeScript PostgreSQL Tailwind">
+        <img class="thumb" src="assets/projects/devflow.jpg" alt="" loading="lazy" style="--accent:#2EE6D6">
+        <span class="pr-body">
+          <span class="pr-top"><span class="pr-title">DevFlow — Developer Workspace</span><span class="year">2025</span></span>
+          <span class="pr-cat">Web</span>
+          <span class="pr-summary">A web workspace for snippets, reviews and release notes with keyboard-first navigation.</span>
+          <span class="chips"><span class="chip sm">Next.js</span><span class="chip sm">TypeScript</span><span class="chip sm">PostgreSQL</span></span>
+        </span>
+      </button>
+      <button class="project-row" data-slug="foodexpress-delivery" data-title="foodexpress — delivery" data-category="Mobile" data-tech="React Native Expo Node.js MongoDB">
+        <img class="thumb" src="assets/projects/foodexpress.jpg" alt="" loading="lazy" style="--accent:#FFB86B">
+        <span class="pr-body">
+          <span class="pr-top"><span class="pr-title">FoodExpress — Delivery</span><span class="year">2024</span></span>
+          <span class="pr-cat">Mobile</span>
+          <span class="pr-summary">On-demand delivery flow with live order tracking, driver handoff states and offline menus.</span>
+          <span class="chips"><span class="chip sm">React Native</span><span class="chip sm">Expo</span><span class="chip sm">Node.js</span></span>
+        </span>
+      </button>
+      <button class="project-row" data-slug="aura-interactive-storefront" data-title="aura — interactive storefront" data-category="Web" data-tech="React Three.js WebGL Stripe">
+        <img class="thumb" src="assets/projects/aura3d.jpg" alt="" loading="lazy" style="--accent:#FF7C9C">
+        <span class="pr-body">
+          <span class="pr-top"><span class="pr-title">Aura — Interactive Storefront</span><span class="year">2024</span></span>
+          <span class="pr-cat">Web</span>
+          <span class="pr-summary">A 3D product customiser that stays under budget on mid-range phones.</span>
+          <span class="chips"><span class="chip sm">React</span><span class="chip sm">Three.js</span><span class="chip sm">WebGL</span></span>
+        </span>
+      </button>
+      <button class="project-row" data-slug="healthsync-care-companion" data-title="healthsync — care companion" data-category="Mobile" data-tech="Flutter FastAPI PostgreSQL WebRTC">
+        <img class="thumb" src="assets/projects/healthsync.jpg" alt="" loading="lazy" style="--accent:#4ADE80">
+        <span class="pr-body">
+          <span class="pr-top"><span class="pr-title">HealthSync — Care Companion</span><span class="year">2024</span></span>
+          <span class="pr-cat">Mobile</span>
+          <span class="pr-summary">A telehealth companion app for appointments, vitals and secure document sharing.</span>
+          <span class="chips"><span class="chip sm">Flutter</span><span class="chip sm">FastAPI</span><span class="chip sm">PostgreSQL</span></span>
+        </span>
+      </button>
+      <button class="project-row" data-slug="taskmaster-planning-board" data-title="taskmaster — planning board" data-category="Full-stack" data-tech="React Zustand Node.js PostgreSQL">
+        <img class="thumb" src="assets/projects/taskmaster.jpg" alt="" loading="lazy" style="--accent:#7C5CFF">
+        <span class="pr-body">
+          <span class="pr-top"><span class="pr-title">TaskMaster — Planning Board</span><span class="year">2023</span></span>
+          <span class="pr-cat">Full-stack</span>
+          <span class="pr-summary">A kanban planning tool with sprint estimation, drag-and-drop and instant undo.</span>
+          <span class="chips"><span class="chip sm">React</span><span class="chip sm">Zustand</span><span class="chip sm">Node.js</span></span>
+        </span>
+      </button>
+      </div>
+      <p class="empty" id="project-empty" hidden>No projects match those filters.</p>
+    </div>
+        </section>
+        <section class="screen" data-screen="about" aria-label="About">
+    <div class="appbar"><div class="brand"><span class="brand-mark">S</span><span class="overline">Portfolio</span></div></div>
+    <div class="body">
+      <p class="overline accent">Profile</p>
+      <h1 class="screen-title">About</h1>
+      <div class="profile-row">
+        <img class="avatar lg" src="assets/avatar.jpg" alt="Portrait of Samiullah Zulfqar">
+        <div>
+          <p class="name sm">Samiullah Zulfqar</p>
+          <p class="roles">Flutter Developer · React Native Engineer · Full-Stack Web</p>
+          <span class="badge avail sm"><i class="dot"></i>Available</span>
+        </div>
+      </div>
+
+      <div class="section-head"><div><p class="overline accent">Biography</p><h2>My story</h2></div></div>
+      <div class="card"><p class="bio">I am a software developer focused on cross-platform mobile apps with Flutter and React Native, plus the web front ends and APIs that support them.</p><p class="bio">I care about the details that make software feel premium: 60fps motion, clear information hierarchy, accessible contrast, honest loading states and code that is easy for the next engineer to change.</p><p class="bio">Sample content — edit this from the admin area once Supabase is connected.</p>
+        <div class="divider"></div>
+        <div class="info-row"><span>Location</span><b>Islamabad, Pakistan</b></div>
+        <div class="info-row"><span>Timezone</span><b>UTC+5</b></div>
+        <div class="info-row"><span>Email</span><b>samiullahzulfqar980@gmail.com</b></div>
+        <div class="info-row"><span>WhatsApp</span><b>+923470563895</b></div>
+      </div>
+
+      <div class="section-head"><div><p class="overline accent">Skills</p><h2>Technical toolkit</h2></div></div>
+      <div class="chips filter" id="skill-filters">
+        <button class="chip filter-chip on" data-cat="Mobile">Mobile</button><button class="chip filter-chip" data-cat="Web">Web</button><button class="chip filter-chip" data-cat="Backend &amp; Data">Backend &amp; Data</button><button class="chip filter-chip" data-cat="Tooling">Tooling</button>
+      </div>
+      <div class="card" id="skill-list">
+        
+        <div class="skill" data-cat="Mobile">
+          <div class="skill-top"><span>Flutter &amp; Dart</span><span class="mono">92%</span></div>
+          <div class="bar"><i style="width:92%"></i></div>
+          <p class="skill-note">Bloc, Riverpod, native channels</p>
+        </div>
+        <div class="skill" data-cat="Mobile">
+          <div class="skill-top"><span>React Native / Expo</span><span class="mono">88%</span></div>
+          <div class="bar"><i style="width:88%"></i></div>
+          <p class="skill-note">Expo Router, gestures, EAS</p>
+        </div>
+        <div class="skill" data-cat="Mobile">
+          <div class="skill-top"><span>Offline-first storage</span><span class="mono">84%</span></div>
+          <div class="bar"><i style="width:84%"></i></div>
+          <p class="skill-note">SQLite, Hive, sync queues</p>
+        </div>
+        <div class="skill" data-cat="Web">
+          <div class="skill-top"><span>React &amp; Next.js</span><span class="mono">90%</span></div>
+          <div class="bar"><i style="width:90%"></i></div>
+          <p class="skill-note">App Router, server components</p>
+        </div>
+        <div class="skill" data-cat="Web">
+          <div class="skill-top"><span>TypeScript</span><span class="mono">88%</span></div>
+          <div class="bar"><i style="width:88%"></i></div>
+          <p class="skill-note">Strict types, generics</p>
+        </div>
+        <div class="skill" data-cat="Web">
+          <div class="skill-top"><span>Design systems</span><span class="mono">82%</span></div>
+          <div class="bar"><i style="width:82%"></i></div>
+          <p class="skill-note">Tokens, theming, a11y</p>
+        </div>
+        <div class="skill" data-cat="Backend &amp; Data">
+          <div class="skill-top"><span>Node.js &amp; REST</span><span class="mono">86%</span></div>
+          <div class="bar"><i style="width:86%"></i></div>
+          <p class="skill-note">Express, validation, auth</p>
+        </div>
+        <div class="skill" data-cat="Backend &amp; Data">
+          <div class="skill-top"><span>PostgreSQL &amp; Supabase</span><span class="mono">85%</span></div>
+          <div class="bar"><i style="width:85%"></i></div>
+          <p class="skill-note">RLS, migrations, storage</p>
+        </div>
+        <div class="skill" data-cat="Backend &amp; Data">
+          <div class="skill-top"><span>Firebase</span><span class="mono">78%</span></div>
+          <div class="bar"><i style="width:78%"></i></div>
+          <p class="skill-note">Auth, Firestore, FCM</p>
+        </div>
+        <div class="skill" data-cat="Tooling">
+          <div class="skill-top"><span>Git &amp; CI</span><span class="mono">90%</span></div>
+          <div class="bar"><i style="width:90%"></i></div>
+          <p class="skill-note">Actions, reviews, releases</p>
+        </div>
+        <div class="skill" data-cat="Tooling">
+          <div class="skill-top"><span>Figma to code</span><span class="mono">84%</span></div>
+          <div class="bar"><i style="width:84%"></i></div>
+          <p class="skill-note">Handoff, prototypes</p>
+        </div>
+      </div>
+
+      <div class="section-head"><div><p class="overline accent">Experience</p><h2>Where I have worked</h2></div></div>
+      <div class="card timeline">
+      <div class="timeline-row">
+        <span class="tl-dot"></span>
+        <div>
+          <p class="tl-role">Mobile &amp; Web App Developer</p>
+          <p class="tl-org">Independent / Freelance (sample)<span class="tl-span">2023 – Present</span></p>
+          <p class="tl-desc">Sample entry — replace with your own history in Admin. Placeholder description: shipped cross-platform apps with Flutter and React Native, and web dashboards with Next.js. · Remote</p>
+        </div>
+      </div>
+      <div class="timeline-row">
+        <span class="tl-dot"></span>
+        <div>
+          <p class="tl-role">Software Developer</p>
+          <p class="tl-org">Add your employer (sample)<span class="tl-span">2022 – 2023</span></p>
+          <p class="tl-desc">Sample entry — describe the product, your role and one measurable outcome. · Islamabad, PK</p>
+        </div>
+      </div></div>
+
+      <div class="section-head"><div><p class="overline accent">Education</p><h2>Academic background</h2></div></div>
+      <div class="card timeline">
+      <div class="timeline-row">
+        <span class="tl-dot"></span>
+        <div>
+          <p class="tl-role">BS Computer Science</p>
+          <p class="tl-org">Add your institution (sample)<span class="tl-span">2020 – 2024</span></p>
+          <p class="tl-desc">Sample entry — coursework, thesis or focus areas.</p>
+        </div>
+      </div></div>
+
+      <div class="actions">
+        <button class="btn primary" data-goto="resume">Open résumé</button>
+        <button class="btn ghost" data-goto="contact">Contact me</button>
+      </div>
+    </div>
+        </section>
+        <section class="screen" data-screen="contact" aria-label="Contact">
+    <div class="appbar"><div class="brand"><span class="brand-mark">S</span><span class="overline">Portfolio</span></div></div>
+    <div class="body">
+      <p class="overline accent">Contact</p>
+      <h1 class="screen-title">Let’s build<br>something</h1>
+      <p class="intro">Have a product idea or a build that needs finishing? Send a short brief — you will get a reply with scope, timeline and next steps.</p>
+
+      <div class="card contact-card">
+        <div class="info-row"><span>Email</span><b>samiullahzulfqar980@gmail.com</b></div>
+        <div class="info-row"><span>WhatsApp</span><b>+923470563895</b></div>
+        <div class="info-row"><span>Based in</span><b>Islamabad, Pakistan · UTC+5</b></div>
+        <div class="divider"></div>
+        <div class="chips"><span class="chip"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.56-1.11-4.56-4.95 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.85-2.35 4.7-4.58 4.94.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/></svg><span>GitHub</span></span><span class="chip"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.5 15.2L2 22l4.9-1.4A10 10 0 1 0 12 2Zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 1 1 12 20Z"/><path d="M8.5 7.6c.2 0 .4 0 .5.4l.7 1.6c.1.2 0 .4-.1.5l-.5.6c-.1.2-.2.3 0 .6.4.7 1.5 1.8 2.3 2.1.3.1.5.1.6-.1l.5-.6c.2-.2.3-.2.5-.1l1.6.8c.2.1.3.2.3.4 0 .9-.7 1.6-1.5 1.7-.8.1-1.7-.2-3-1-1.4-.8-2.4-2.1-2.8-2.8-.4-.7-.6-1.4-.5-2 .1-.8.7-1.4 1.3-1.4Z"/></svg><span>WhatsApp</span></span><span class="chip"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"/></svg><span>Website</span></span></div>
+      </div>
+
+      <div class="section-head"><div><p class="overline accent">Inquiry</p><h2>Send a message</h2></div></div>
+      <form class="card form" id="contact-form" novalidate>
+        <div class="field"><label for="cf-name">Name</label><input id="cf-name" name="name" autocomplete="name" placeholder="Your name"></div>
+        <div class="field"><label for="cf-email">Email</label><input id="cf-email" name="email" type="email" autocomplete="email" placeholder="you@company.com"></div>
+        <div class="field"><label for="cf-subject">Subject <span class="opt">(optional)</span></label><input id="cf-subject" name="subject" placeholder="Mobile app for…"></div>
+        <div class="field"><label for="cf-message">Message</label><textarea id="cf-message" name="message" rows="4" placeholder="What are you building, and what do you need?"></textarea></div>
+        <p class="form-error" id="cf-error" role="alert" hidden></p>
+        <button class="btn primary" type="submit">Send inquiry</button>
+        <p class="hint">This preview does not send anything — the real app stores inquiries in Supabase behind RLS.</p>
+      </form>
+      <div class="card success" id="cf-success" hidden>
+        <span class="success-icon">✓</span>
+        <h3>Message captured</h3>
+        <p>In the real app this lands in the private admin inbox (validated, sanitised, rate limited) and the visitor sees exactly this confirmation.</p>
+        <button class="btn ghost" type="button" id="cf-again">Write another</button>
+      </div>
+    </div>
+        </section>
+        <section class="screen" data-screen="resume" aria-label="Résumé">
+    <div class="appbar"><span class="icon-btn" data-back aria-label="Back">←</span><span class="appbar-title">Résumé</span></div>
+    <div class="body">
+      <div class="card">
+        <div class="profile-row tight">
+          <img class="avatar" src="assets/avatar.jpg" alt="">
+          <div>
+            <p class="name sm">Samiullah Zulfqar</p>
+            <p class="roles">Flutter Developer · React Native Engineer · Full-Stack Web</p>
+            <p class="meta">Islamabad, Pakistan</p>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <button class="btn primary" type="button" onclick="alert('In the Flutter app this opens the PDF stored in the resume-files bucket.')">Open PDF</button>
+        <p class="hint">PDF is served from Supabase Storage → <code>resume-files</code>.</p>
+      </div>
+
+      <div class="section-head"><div><p class="overline accent">Summary</p><h2>Profile</h2></div></div>
+      <div class="card"><p class="bio">I am a software developer focused on cross-platform mobile apps with Flutter and React Native, plus the web front ends and APIs that support them.</p></div>
+
+      <div class="section-head"><div><p class="overline accent">Experience</p><h2>Roles</h2></div></div>
+      <div class="card timeline">
+      <div class="timeline-row">
+        <span class="tl-dot"></span>
+        <div>
+          <p class="tl-role">Mobile &amp; Web App Developer</p>
+          <p class="tl-org">Independent / Freelance (sample)<span class="tl-span">2023 – Present</span></p>
+          <p class="tl-desc">Sample entry — replace with your own history in Admin. Placeholder description: shipped cross-platform apps with Flutter and React Native, and web dashboards with Next.js. · Remote</p>
+        </div>
+      </div>
+      <div class="timeline-row">
+        <span class="tl-dot"></span>
+        <div>
+          <p class="tl-role">Software Developer</p>
+          <p class="tl-org">Add your employer (sample)<span class="tl-span">2022 – 2023</span></p>
+          <p class="tl-desc">Sample entry — describe the product, your role and one measurable outcome. · Islamabad, PK</p>
+        </div>
+      </div></div>
+
+      <div class="section-head"><div><p class="overline accent">Education</p><h2>Study</h2></div></div>
+      <div class="card timeline">
+      <div class="timeline-row">
+        <span class="tl-dot"></span>
+        <div>
+          <p class="tl-role">BS Computer Science</p>
+          <p class="tl-org">Add your institution (sample)<span class="tl-span">2020 – 2024</span></p>
+          <p class="tl-desc">Sample entry — coursework, thesis or focus areas.</p>
+        </div>
+      </div></div>
+
+      <div class="section-head"><div><p class="overline accent">Skills</p><h2>Toolkit</h2></div></div>
+      <div class="card"><div class="chips"><span class="chip sm">Flutter &amp; Dart</span><span class="chip sm">React Native / Expo</span><span class="chip sm">Offline-first storage</span><span class="chip sm">React &amp; Next.js</span><span class="chip sm">TypeScript</span><span class="chip sm">Design systems</span><span class="chip sm">Node.js &amp; REST</span><span class="chip sm">PostgreSQL &amp; Supabase</span><span class="chip sm">Firebase</span><span class="chip sm">Git &amp; CI</span><span class="chip sm">Figma to code</span></div></div>
+
+      <button class="btn primary wide" data-goto="contact">Contact me</button>
+    </div>
+        </section>
+      </div>
+      <nav class="tabbar" role="tablist" aria-label="Main navigation"><button class="tab on" data-tab="home" role="tab" aria-selected="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 3l9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z"/></svg>
+        <span>Home</span>
+      </button><button class="tab" data-tab="projects" role="tab" aria-selected="false">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>
+        <span>Projects</span>
+      </button><button class="tab" data-tab="about" role="tab" aria-selected="false">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM20 21a8 8 0 1 0-16 0"/></svg>
+        <span>About</span>
+      </button><button class="tab" data-tab="contact" role="tab" aria-selected="false">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4zM4 7l8 6 8-6"/></svg>
+        <span>Contact</span>
+      </button>
+      </nav>
+      
+    <div class="sheet" id="sheet" aria-label="Project case study">
+      <div class="sheet-hero">
+        <button class="sheet-back" id="sheet-back" aria-label="Back to projects">←</button>
+        <img id="sheet-img" src="" alt="">
+      </div>
+      <div class="sheet-body">
+        <div class="sheet-cat"><span class="chip sm accent" id="sheet-cat">Category</span><span class="year" id="sheet-year"></span></div>
+        <h2 id="sheet-title">Project</h2>
+        <p class="summary" id="sheet-summary"></p>
+        <div class="chips" id="sheet-tech"></div>
+        <div id="sheet-para"></div>
+        <div class="sheet-actions" id="sheet-links"></div>
+        <button class="btn ghost wide" id="sheet-close-links" type="button">Back to all projects</button>
+      </div>
+    </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const PROJECTS = {"finpulse-fintech-wallet": {"title": "FinPulse — Fintech Wallet", "category": "Mobile", "year": "2025", "summary": "A cross-platform wallet concept with a live market feed, budget insights and biometric unlock.", "description": "FinPulse explores what a calm, trustworthy fintech app feels like. The home screen leads with balance and cashflow instead of charts, motion is used to explain change rather than decorate it, and every destructive action is guarded.\n\nBuilt as a reference architecture: feature-first folder structure, repository layer, typed API models and a design system that adapts to small phones and large text.\n\nSample content — edit this from the admin area once Supabase is connected.", "technologies": ["Flutter", "Dart", "Riverpod", "Supabase"], "image": "assets/projects/finpulse.jpg", "demo": "https://github.com/samiullahzulfqar980-cmd", "repo": "https://github.com/samiullahzulfqar980-cmd", "accent": "#7C5CFF"}, "devflow-developer-workspace": {"title": "DevFlow — Developer Workspace", "category": "Web", "year": "2025", "summary": "A web workspace for snippets, reviews and release notes with keyboard-first navigation.", "description": "DevFlow is a full-stack web app for small engineering teams: searchable snippets, a review queue and release notes that render from a single source of truth.\n\nThe interesting engineering is in the data layer — Postgres full-text search, row-level security per workspace and optimistic UI that survives a dropped websocket.\n\nSample content — edit this from the admin area once Supabase is connected.", "technologies": ["Next.js", "TypeScript", "PostgreSQL", "Tailwind"], "image": "assets/projects/devflow.jpg", "demo": "https://github.com/samiullahzulfqar980-cmd", "repo": "https://github.com/samiullahzulfqar980-cmd", "accent": "#2EE6D6"}, "foodexpress-delivery": {"title": "FoodExpress — Delivery", "category": "Mobile", "year": "2024", "summary": "On-demand delivery flow with live order tracking, driver handoff states and offline menus.", "description": "A delivery app concept built around the 40 seconds that actually matter: choosing, paying and knowing where the order is.\n\nOffline-first cart, deterministic order state machine, and a map view that degrades gracefully when the network is slow.\n\nSample content — edit this from the admin area once Supabase is connected.", "technologies": ["React Native", "Expo", "Node.js", "MongoDB"], "image": "assets/projects/foodexpress.jpg", "demo": null, "repo": "https://github.com/samiullahzulfqar980-cmd", "accent": "#FFB86B"}, "aura-interactive-storefront": {"title": "Aura — Interactive Storefront", "category": "Web", "year": "2024", "summary": "A 3D product customiser that stays under budget on mid-range phones.", "description": "A storefront experiment: real-time product materials, lighting presets and a checkout that never blocks the viewport.\n\nProgressive loading, texture budgets and a reduced-motion fallback are what make it usable on real devices rather than only on a laptop.\n\nSample content — edit this from the admin area once Supabase is connected.", "technologies": ["React", "Three.js", "WebGL", "Stripe"], "image": "assets/projects/aura3d.jpg", "demo": "https://github.com/samiullahzulfqar980-cmd", "repo": null, "accent": "#FF7C9C"}, "healthsync-care-companion": {"title": "HealthSync — Care Companion", "category": "Mobile", "year": "2024", "summary": "A telehealth companion app for appointments, vitals and secure document sharing.", "description": "HealthSync pairs a patient app with a clinician dashboard. The mobile client keeps vitals readable at a glance and makes consent explicit at every step.\n\nFocus areas: encrypted storage, audit trails, and a reading experience that works for users with low vision.\n\nSample content — edit this from the admin area once Supabase is connected.", "technologies": ["Flutter", "FastAPI", "PostgreSQL", "WebRTC"], "image": "assets/projects/healthsync.jpg", "demo": null, "repo": "https://github.com/samiullahzulfqar980-cmd", "accent": "#4ADE80"}, "taskmaster-planning-board": {"title": "TaskMaster — Planning Board", "category": "Full-stack", "year": "2023", "summary": "A kanban planning tool with sprint estimation, drag-and-drop and instant undo.", "description": "A productivity workspace built to answer one question: what should I do next?\n\nSmooth drag-and-drop with accessible keyboard alternatives, a durable undo stack, and summary views that stay fast with thousands of cards.\n\nSample content — edit this from the admin area once Supabase is connected.", "technologies": ["React", "Zustand", "Node.js", "PostgreSQL"], "image": "assets/projects/taskmaster.jpg", "demo": "https://github.com/samiullahzulfqar980-cmd", "repo": null, "accent": "#7C5CFF"}};
+
+const viewport = document.querySelector('.viewport');
+const screens = Array.from(document.querySelectorAll('.screen'));
+const tabs = Array.from(document.querySelectorAll('.tab'));
+
+function showScreen(name){
+  const target = screens.find(s => s.dataset.screen === name);
+  if(!target) return;
+  screens.forEach(s => s.classList.toggle('on', s === target));
+  tabs.forEach(t => {
+    const on = t.dataset.tab === name;
+    t.classList.toggle('on', on);
+    t.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  target.scrollTop = 0;
+}
+
+document.addEventListener('click', (ev) => {
+  const goto = ev.target.closest('[data-goto]');
+  if(goto){ showScreen(goto.dataset.goto); return; }
+
+  const tab = ev.target.closest('.tab');
+  if(tab){ showScreen(tab.dataset.tab); return; }
+
+  const card = ev.target.closest('[data-slug]');
+  if(card){ openProject(card.dataset.slug); return; }
+
+  const back = ev.target.closest('[data-back]');
+  if(back){ showScreen('home'); }
+});
+
+/* ---------- project detail ---------- */
+const sheet = document.getElementById('sheet');
+
+function openProject(slug){
+  const p = PROJECTS[slug];
+  if(!p) return;
+  document.getElementById('sheet-img').src = p.image || '';
+  document.getElementById('sheet-cat').textContent = p.category;
+  document.getElementById('sheet-year').textContent = p.year;
+  document.getElementById('sheet-title').textContent = p.title;
+  document.getElementById('sheet-summary').textContent = p.summary;
+  document.getElementById('sheet-tech').innerHTML = p.technologies.map(t => `<span class="chip sm">${escapeHtml(t)}</span>`).join('');
+  const body = (p.description || '').split('\n\n').filter(Boolean);
+  document.getElementById('sheet-para').innerHTML = body.map(t => `<p class="para">${escapeHtml(t)}</p>`).join('');
+  const links = document.getElementById('sheet-links');
+  links.innerHTML = '';
+  if(p.demo){ links.insertAdjacentHTML('beforeend', `<a class="btn primary" href="${p.demo}" target="_blank" rel="noopener">Live preview</a>`); }
+  if(p.repo){ links.insertAdjacentHTML('beforeend', `<a class="btn ghost" href="${p.repo}" target="_blank" rel="noopener">Source code</a>`); }
+  if(!p.demo && !p.repo){ links.insertAdjacentHTML('beforeend', '<button class="btn ghost" data-goto="contact">Ask about this build</button>'); }
+  document.getElementById('sheet').classList.add('open');
+  document.getElementById('sheet').scrollTop = 0;
+}
+
+document.getElementById('sheet-back').addEventListener('click', () => {
+  document.getElementById('sheet').classList.remove('open');
+});
+document.getElementById('sheet-close-links').addEventListener('click', () => {
+  document.getElementById('sheet').classList.remove('open');
+  showScreen('contact');
+});
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ---------- project filtering ---------- */
+const searchInput = document.getElementById('project-search');
+const rows = Array.from(document.querySelectorAll('#project-list [data-slug]'));
+const countEl = document.getElementById('project-count');
+const emptyEl = document.getElementById('project-empty');
+const clearBtn = document.getElementById('clear-filters');
+const catChips = Array.from(document.querySelectorAll('#category-filters .filter-chip'));
+let activeCat = 'All';
+
+function applyFilters(){
+  const q = (searchInput?.value || '').trim().toLowerCase();
+  let shown = 0;
+  rows.forEach(row => {
+    const matchesCat = activeCat === 'All' || row.dataset.category === activeCat;
+    const hay = `${row.dataset.title} ${row.dataset.category} ${row.dataset.tech}`.toLowerCase();
+    const matchesQuery = !q || hay.includes(q);
+    const visible = matchesCat && matchesQuery;
+    row.hidden = !visible;
+    if(visible) shown++;
+  });
+  if(countEl) countEl.textContent = `${shown} ${shown === 1 ? 'project' : 'projects'}`;
+  if(emptyEl) emptyEl.hidden = shown !== 0;
+  if(clearBtn) clearBtn.hidden = !(q || activeCat !== 'All');
+}
+
+searchInput?.addEventListener('input', applyFilters);
+catChips.forEach(chip => chip.addEventListener('click', () => {
+  activeCat = chip.dataset.category;
+  catChips.forEach(c => c.classList.toggle('on', c === chip));
+  applyFilters();
+}));
+clearBtn?.addEventListener('click', () => {
+  if(searchInput) searchInput.value = '';
+  activeCat = 'All';
+  catChips.forEach(c => c.classList.toggle('on', c.dataset.category === 'All'));
+  applyFilters();
+});
+applyFilters();
+
+/* ---------- skill filters ---------- */
+const skillChips = Array.from(document.querySelectorAll('#skill-filters .filter-chip'));
+const skillRows = Array.from(document.querySelectorAll('#skill-list .skill'));
+skillChips.forEach(chip => chip.addEventListener('click', () => {
+  skillChips.forEach(c => c.classList.toggle('on', c === chip));
+  skillRows.forEach(row => { row.hidden = row.dataset.cat !== chip.dataset.cat; });
+}));
+if(skillChips.length){ skillChips[0].click(); }
+
+/* ---------- contact form (demo) ---------- */
+const form = document.getElementById('contact-form');
+const formError = document.getElementById('cf-error');
+const success = document.getElementById('cf-success');
+const again = document.getElementById('cf-again');
+
+form?.addEventListener('submit', (ev) => {
+  ev.preventDefault();
+  const name = form.querySelector('#cf-name');
+  const email = form.querySelector('#cf-email');
+  const message = form.querySelector('#cf-message');
+  const fields = [name, email, message];
+  fields.forEach(f => f.closest('.field').classList.remove('invalid'));
+  let error = '';
+  if(!name.value.trim()) { error = 'Please add your name.'; name.closest('.field').classList.add('invalid'); }
+  else if(!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email.value.trim())) { error = 'That email address does not look right.'; email.closest('.field').classList.add('invalid'); }
+  else if(message.value.trim().length < 10) { error = 'A few more words about the project help — 10 characters minimum.'; message.closest('.field').classList.add('invalid'); }
+  if(error){
+    formError.textContent = error;
+    formError.hidden = false;
+    return;
+  }
+  formError.hidden = true;
+  form.hidden = true;
+  success.hidden = false;
+});
+
+again?.addEventListener('click', () => {
+  form.reset();
+  form.hidden = false;
+  success.hidden = true;
+});
+
+/* keyboard: arrow keys between tabs */
+document.querySelector('.tabbar')?.addEventListener('keydown', (ev) => {
+  if(ev.key !== 'ArrowRight' && ev.key !== 'ArrowLeft') return;
+  const i = tabs.findIndex(t => t.classList.contains('on'));
+  const next = (i + (ev.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length;
+  tabs[next].focus();
+  showScreen(tabs[next].dataset.tab);
+});
+</script>
+</body>
+</html>

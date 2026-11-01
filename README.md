@@ -23,13 +23,14 @@ not a WebView.
 9. [Deep links (password reset & email confirmation)](#deep-links)
 10. [Local development](#local-development)
 11. [Running in a browser (Chrome / web)](#running-in-a-browser-chrome--web)
-12. [Building the app](#building-the-app)
-12. [Testing & analysis](#testing--analysis)
-13. [Security model](#security-model)
-14. [Accessibility & motion](#accessibility--motion)
-15. [Layout resilience (no overflow)](#layout-resilience-no-overflow)
-16. [Editing the placeholder content](#editing-the-placeholder-content)
-17. [Troubleshooting](#troubleshooting)
+12. [Design preview (browser mock-up)](#design-preview-browser-mock-up)
+13. [Building the app](#building-the-app)
+14. [Testing & analysis](#testing--analysis)
+15. [Security model](#security-model)
+16. [Accessibility & motion](#accessibility--motion)
+17. [Layout resilience (no overflow)](#layout-resilience-no-overflow)
+18. [Editing the placeholder content](#editing-the-placeholder-content)
+19. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -114,6 +115,7 @@ lib/
   features/
     splash, onboarding, shell, home, projects, about, contact, resume, auth, admin
   shared/widgets/              GlassCard, buttons, fields, states, badges, cards…
+preview/                       Browser mock-up of the screens (not the app) + static server
 supabase/
   migrations/                  Schema, RLS, storage policies
   seed.sql                     Sample content
@@ -386,6 +388,22 @@ Notes specific to web:
 | `MissingPluginException` in the browser | A plugin without a web implementation — run `flutter clean` then `flutter pub get`; all plugins used here ship web support. |
 | Session does not survive a refresh on a LAN IP | Serve over HTTPS or use `localhost` (secure-context requirement). |
 | CORS errors calling Supabase | Wrong `SUPABASE_URL`, or your origin is not allowed in the Supabase dashboard Auth settings. |
+
+## Design preview (browser mock-up)
+
+`preview/` contains a **single-page HTML mock-up** of the app's screens so the design can be
+reviewed in a browser without a Flutter toolchain. It is clearly labelled as a preview in the
+page itself and it is **not** the product — the app is the Flutter project in this repository.
+
+```bash
+python3 preview/serve.py        # http://localhost:8080
+```
+
+- Screens: Home, Projects (search + filters), About (skill filters), Contact (validated form
+  with confirmation), Résumé, and a project case-study sheet.
+- Content comes from `supabase/seed.sql`, so the mock-up and the app show the same rows.
+- The form validates locally and sends nothing — inquiries only work in the real app.
+- `preview/downloads.html` links the packaged archives with proper download headers.
 
 ## Building the app
 

@@ -52,11 +52,6 @@ class DemoContent {
             label: 'GitHub',
             url: 'https://github.com/samiullahzulfqar980-cmd',
           ),
-          'linkedin': SocialLink(
-            key: 'linkedin',
-            label: 'LinkedIn',
-            url: 'https://www.linkedin.com/',
-          ),
           'whatsapp': SocialLink(
             key: 'whatsapp',
             label: 'WhatsApp',

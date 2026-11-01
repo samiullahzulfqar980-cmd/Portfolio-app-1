@@ -106,7 +106,6 @@ class LauncherService {
 /// Icon mapping for social keys (kept UI-agnostic for reuse in admin).
 const Map<String, String> socialGlyph = <String, String>{
   'github': 'GH',
-  'linkedin': 'in',
   'whatsapp': 'WA',
   'x': 'X',
   'website': 'WWW',

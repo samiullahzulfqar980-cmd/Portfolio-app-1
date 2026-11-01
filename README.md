@@ -173,6 +173,28 @@ filename order, run them, then paste `supabase/seed.sql`.
 The migrations are idempotent (`if not exists`, `drop policy if exists`, upserts), so they
 can be re-run safely.
 
+### 2b. Seed all of the app's content
+
+`supabase/seed.sql` contains **the same content the app ships as its offline demo**, so a
+freshly seeded project looks identical to preview mode — no empty screens, no missing
+images. Everything is upserted by a stable UUID, so running it again just refreshes rows.
+
+| Table | Rows | Contents |
+| --- | --- | --- |
+| `profiles` | 1 | Name, headline, roles, bio, email, location, availability, `social_links` (GitHub · WhatsApp · Website), stats, bundled avatar |
+| `projects` | 7 | 6 published + 1 draft (`portfolio-app`), each with summary, case study, category, tech tags, cover image, links, year, accent |
+| `skills` | 11 | Grouped into Mobile / Web / Backend & Data / Tooling with proficiency + notes |
+| `services` | 4 | Title, description, icon key, tech chips |
+| `timeline` | 3 | 2 experience entries + 1 education entry |
+
+Image paths start with `assets/`, which the app resolves to its **bundled** artwork — so the
+seed works with zero uploads. To use Storage instead, upload the file and store the object
+path (`projects/finpulse.png`, `avatar/me.webp`, `resume/cv.pdf`).
+
+The file is generated from `lib/data/demo/demo_content.dart`, so demo mode and Supabase
+always show the same thing. After seeding, editing content in the in-app admin area updates
+Supabase (and the app follows); editing `demo_content.dart` only affects preview mode.
+
 ### 3. Storage buckets
 
 `20260101000200_storage_policies.sql` creates three **public-read** buckets and restricts
@@ -397,6 +419,8 @@ Everything shipped is placeholder content and is clearly editable:
 - **In the app** (recommended): sign in as admin → edit profile, projects, skills, services
   and timeline; upload avatar/project images and the résumé PDF.
 - **In SQL:** edit `supabase/seed.sql` before seeding, or update rows in the Table editor.
+  `seed.sql` mirrors `demo_content.dart` row for row, so keep the two in step if you change
+  the sample content in both places.
 - **Bundled demo:** `lib/data/demo/demo_content.dart` powers preview mode only.
 - **Illustrations:** generated artwork lives in `assets/images/` (avatar + six project
   covers). Replace them with real screenshots, then upload to the `project-images` bucket

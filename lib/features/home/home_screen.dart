@@ -481,8 +481,6 @@ class _SocialChip extends StatelessWidget {
     switch (link.key) {
       case 'github':
         return Icons.code_rounded;
-      case 'linkedin':
-        return Icons.work_outline_rounded;
       case 'whatsapp':
         return Icons.chat_bubble_outline_rounded;
       case 'x':

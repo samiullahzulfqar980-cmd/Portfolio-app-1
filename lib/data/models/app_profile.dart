@@ -29,8 +29,6 @@ class SocialLink {
     switch (key) {
       case 'github':
         return 'GitHub';
-      case 'linkedin':
-        return 'LinkedIn';
       case 'x':
       case 'twitter':
         return 'X / Twitter';
@@ -51,7 +49,6 @@ class SocialLink {
 
   static const List<String> supportedKeys = <String>[
     'github',
-    'linkedin',
     'whatsapp',
     'x',
     'website',
@@ -166,7 +163,7 @@ class AppProfile {
   }
 
   List<SocialLink> get orderedSocialLinks {
-    const List<String> order = <String>['github', 'linkedin', 'whatsapp', 'x', 'website', 'dribbble'];
+    const List<String> order = <String>['github', 'whatsapp', 'website', 'x', 'dribbble'];
     final List<SocialLink> links = socialLinks.values.toList();
     links.sort((SocialLink a, SocialLink b) {
       final int ai = order.indexOf(a.key);

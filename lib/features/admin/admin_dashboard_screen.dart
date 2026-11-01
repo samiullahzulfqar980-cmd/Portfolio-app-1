@@ -12,6 +12,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/utils/formatters.dart';
+import '../../data/models/app_profile.dart';
 import '../../data/models/contact_message.dart';
 import '../../data/models/project.dart';
 import '../../shared/widgets/app_buttons.dart';
@@ -115,6 +116,8 @@ class AdminDashboardScreen extends ConsumerWidget {
                 ),
               ],
             ),
+            const SizedBox(height: AppSpacing.lg),
+            _MediaSourceCard(projects: projects),
             const SizedBox(height: AppSpacing.xl),
             SectionHeader(
               eyebrow: 'Inbox',
@@ -272,6 +275,77 @@ class _StatCard extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Shows whether the media shown by the app comes from Supabase Storage or is
+/// still bundled with the binary — the last piece of "all data on Supabase".
+class _MediaSourceCard extends ConsumerWidget {
+  const _MediaSourceCard({required this.projects});
+
+  final AsyncValue<List<Project>> projects;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AppProfile? profile = ref.watch(adminProfileProvider).value;
+    final List<Project> items = projects.value ?? const <Project>[];
+
+    final List<String> bundled = <String>[
+      if (profile != null && _isBundled(profile.avatarPath)) 'avatar',
+      if (profile != null && _isBundled(profile.resumePath)) 'résumé PDF',
+      for (final Project project in items)
+        if (_isBundled(project.imagePath)) '${project.title} cover',
+    ];
+    final int stored = <String?>[
+      profile?.avatarPath,
+      if ((profile?.resumePath ?? '').isNotEmpty) profile?.resumePath,
+      for (final Project project in items) project.imagePath,
+    ].where((String? path) => path != null && path.isNotEmpty && !_isBundled(path)).length;
+
+    final bool clean = bundled.isEmpty;
+    final Color tone = clean ? AppColors.success : AppColors.warning;
+
+    return GlassCard(
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Icon(
+            clean ? Icons.cloud_done_rounded : Icons.cloud_off_rounded,
+            size: 18,
+            color: tone,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  clean ? 'All media is served from Supabase' : 'Some media is still bundled',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppType.labelLarge(color: AppColors.textPrimary),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  clean
+                      ? '$stored file${stored == 1 ? '' : 's'} loaded from Storage buckets.'
+                      : '${bundled.length} file${bundled.length == 1 ? '' : 's'} from the app '
+                          'bundle: ${bundled.take(3).join(', ')}'
+                          '${bundled.length > 3 ? ' +${bundled.length - 3} more' : ''}. '
+                          'Upload them in Profile / Projects to serve everything from Supabase.',
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppType.bodySmall(color: AppColors.textMuted),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static bool _isBundled(String? path) => path != null && path.startsWith('assets/');
 }
 
 class _ActionGrid extends StatelessWidget {

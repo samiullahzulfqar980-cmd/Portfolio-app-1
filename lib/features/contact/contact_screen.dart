@@ -88,13 +88,15 @@ class _ContactBodyState extends ConsumerState<_ContactBody> {
   String _sentToName = '';
   String? _submitError;
 
-  static const List<String> _services = <String>[
-    'Cross-platform mobile app',
-    'Full-stack web platform',
-    'Backend / API work',
-    'UI engineering & polish',
-    'Something else',
-  ];
+  /// Dropdown options are the published `services` rows, so the inquiry form
+  /// always matches what the owner actually offers — nothing is hardcoded.
+  List<String> get _serviceOptions {
+    final List<String> titles = widget.data.services
+        .map((service) => service.title.trim())
+        .where((String title) => title.isNotEmpty)
+        .toList(growable: false);
+    return <String>[...titles, 'Something else'];
+  }
 
   static const List<String> _budgets = <String>[
     'Under \$2k',
@@ -324,7 +326,7 @@ class _ContactBodyState extends ConsumerState<_ContactBody> {
                           label: 'What do you need?',
                           value: _serviceInterest,
                           hint: 'Optional — pick a service',
-                          items: _services
+                          items: _serviceOptions
                               .map((String value) => DropdownMenuItem<String>(
                                     value: value,
                                     child: Text(value),

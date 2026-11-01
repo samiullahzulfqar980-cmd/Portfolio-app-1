@@ -115,6 +115,8 @@ lib/
   features/
     splash, onboarding, shell, home, projects, about, contact, resume, auth, admin
   shared/widgets/              GlassCard, buttons, fields, states, badges, cards…
+scripts/
+  supabase_media.py            Moves bundled media into Storage + verifies URLs
 preview/                       Browser mock-up of the screens (not the app) + static server
 supabase/
   migrations/                  Schema, RLS, storage policies
@@ -258,7 +260,8 @@ Every value the app renders comes from Supabase — there is no second content s
 | Services ("What I deliver") | `services` (`is_published`) | Admin → Services |
 | Experience & education | `timeline` (`kind` = experience / education) | Admin → Experience |
 | Inquiry form submissions | `contact_messages` (owner-only via RLS) | Contact tab form |
-| Avatar / project covers / résumé PDF | Supabase Storage public URLs | Admin uploaders |
+| Avatar / project covers / résumé PDF | Supabase Storage public URLs | Admin uploaders or `scripts/supabase_media.py` |
+| Contact form "What do you need?" options | `services` (`is_published`) | Admin → Services |
 
 Verification checklist after setup:
 
@@ -275,6 +278,36 @@ Verification checklist after setup:
 `SUPABASE_URL` / `SUPABASE_ANON_KEY` are absent so the UI can be reviewed offline. Any load
 error with Supabase configured surfaces an error state with retry — it never silently swaps
 in sample content.
+
+Nothing else is hardcoded: tab labels, section headings and form hints are UI copy, while
+every value that describes *you* (name, roles, bio, stats, links, projects, skills, services,
+timeline, inquiries, media paths) is a column in Supabase.
+
+### 6. Move the media into Storage
+
+The seed points image/résumé columns at `assets/...` so a fresh install renders immediately.
+Those bytes still ship inside the app, so finish the job with the bundled script — it uploads
+them to the three buckets and rewrites the rows to object paths:
+
+```bash
+export SUPABASE_URL=https://<ref>.supabase.co
+export SUPABASE_ANON_KEY=<anon key>            # public key; RLS still applies
+export SUPABASE_ADMIN_EMAIL=you@example.com    # must be in public.admin_users
+export SUPABASE_ADMIN_PASSWORD=<password>
+
+python3 scripts/supabase_media.py plan            # report only
+python3 scripts/supabase_media.py upload          # upload + rewrite rows
+python3 scripts/supabase_media.py upload --resume ~/cv.pdf
+python3 scripts/supabase_media.py verify          # HEAD every public URL
+```
+
+- It signs in as your admin user with the **anon** key, so it can never do more than the app
+  could; no service-role key is involved.
+- It is idempotent: rows that already point at Storage are skipped, so it is safe to re-run.
+- `verify` prints the HTTP status of every avatar, cover and résumé URL and exits non-zero if
+  any object is missing.
+- The admin **Dashboard** shows the same state in-app ("All media is served from Supabase" vs
+  "Some media is still bundled"), so you can spot leftovers without the CLI.
 
 ## Grant admin access
 

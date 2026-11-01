@@ -92,6 +92,14 @@ class LauncherService {
 
   /// Résumé lives in Supabase Storage; opens the PDF in the platform viewer.
   Future<bool> openResume(String? path) {
+    // A bundled `assets/...` path is artwork compiled into the app, not a URL;
+    // a real résumé must be uploaded to the `resume-files` bucket first.
+    if (path != null && path.startsWith('assets/')) {
+      throw const AppFailure(
+        'The résumé is still a bundled placeholder. Upload a PDF in Admin → Profile.',
+        code: 'missing_resume',
+      );
+    }
     final String url = StorageUrl.resume(path);
     if (url.isEmpty) {
       throw const AppFailure(

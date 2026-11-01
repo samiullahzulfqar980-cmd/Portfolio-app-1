@@ -19,10 +19,12 @@ class LauncherService {
       throw const AppFailure('This link looks invalid.', code: 'bad_link');
     }
     try {
-      final bool launched = await launchUrl(
-        uri,
-        mode: external ? LaunchMode.externalApplication : LaunchMode.platformDefault,
-      );
+      // Browsers only implement the platform-default mode (which opens a new
+      // tab); asking for `externalApplication` there throws on some versions.
+      final LaunchMode mode = external && !kIsWeb
+          ? LaunchMode.externalApplication
+          : LaunchMode.platformDefault;
+      final bool launched = await launchUrl(uri, mode: mode);
       if (!launched) {
         throw const AppFailure(
           'No app on this device can open that link.',

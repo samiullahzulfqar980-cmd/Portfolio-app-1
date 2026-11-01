@@ -62,6 +62,11 @@ class DemoContent {
             label: 'WhatsApp',
             url: '+923470563895',
           ),
+          'website': SocialLink(
+            key: 'website',
+            label: 'Website',
+            url: 'https://portfolio-website-six-rosy-97.vercel.app/',
+          ),
         },
         stats: <ProfileStat>[
           ProfileStat(label: 'Focus', value: 'Mobile + Web', iconKey: 'mobile'),

@@ -74,6 +74,15 @@ class _AboutBody extends ConsumerStatefulWidget {
 class _AboutBodyState extends ConsumerState<_AboutBody> {
   String? _skillFilter;
 
+  /// Opens an external destination and reports failures inline.
+  Future<void> _open(BuildContext context, Future<void> Function() action) async {
+    try {
+      await action();
+    } on AppFailure catch (failure) {
+      if (context.mounted) Toast.error(context, failure.message);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final PortfolioData data = widget.data;
@@ -166,6 +175,27 @@ class _AboutBodyState extends ConsumerState<_AboutBody> {
                     }
                   },
                 ),
+                if (profile.whatsappLink != null)
+                  InfoRow(
+                    icon: Icons.chat_bubble_outline_rounded,
+                    label: 'WhatsApp',
+                    value: profile.whatsappDisplay ?? 'Message on WhatsApp',
+                    onTap: () => _open(
+                      context,
+                      () => const LauncherService()
+                          .openWhatsApp(profile.whatsappLink!.url),
+                    ),
+                  ),
+                if (profile.websiteLink != null)
+                  InfoRow(
+                    icon: Icons.language_rounded,
+                    label: 'Website',
+                    value: profile.websiteHost ?? profile.websiteLink!.url,
+                    onTap: () => _open(
+                      context,
+                      () => const LauncherService().openUrl(profile.websiteLink!.url),
+                    ),
+                  ),
               ],
             ),
           ),

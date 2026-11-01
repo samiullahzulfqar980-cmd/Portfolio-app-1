@@ -184,9 +184,11 @@ class _ContactBodyState extends ConsumerState<_ContactBody> {
     final AppProfile profile = widget.data.profile;
     final double gutter = AppSpacing.gutter(context);
     final LauncherService launcher = const LauncherService();
-    // WhatsApp gets its own row (it shows the number), so drop it from the chips.
+    // WhatsApp and the website get their own rows (they show the actual number
+    // or domain), so keep them out of the chip row to avoid duplicates.
+    const Set<String> dedicated = <String>{'whatsapp', 'website'};
     final List<SocialLink> socialChips = profile.orderedSocialLinks
-        .where((SocialLink link) => link.key != 'whatsapp')
+        .where((SocialLink link) => !dedicated.contains(link.key))
         .toList(growable: false);
 
     return ListView(
@@ -220,6 +222,16 @@ class _ContactBodyState extends ConsumerState<_ContactBody> {
                     value: profile.whatsappDisplay ?? 'Message on WhatsApp',
                     onTap: () => _launch(
                       () => launcher.openWhatsApp(profile.whatsappLink!.url),
+                    ),
+                    trailing: const Icon(Icons.open_in_new_rounded, size: 15, color: AppColors.textMuted),
+                  ),
+                if (profile.websiteLink != null)
+                  InfoRow(
+                    icon: Icons.language_rounded,
+                    label: 'Website',
+                    value: profile.websiteHost ?? profile.websiteLink!.url,
+                    onTap: () => _launch(
+                      () => launcher.openUrl(profile.websiteLink!.url),
                     ),
                     trailing: const Icon(Icons.open_in_new_rounded, size: 15, color: AppColors.textMuted),
                   ),

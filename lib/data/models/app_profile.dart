@@ -128,6 +128,20 @@ class AppProfile {
   /// The WhatsApp entry from [socialLinks], when the owner has added one.
   SocialLink? get whatsappLink => socialLinks['whatsapp'];
 
+  /// The website entry from [socialLinks], when the owner has added one.
+  SocialLink? get websiteLink => socialLinks['website'];
+
+  /// Website address without the scheme, e.g. `portfolio.example.com`.
+  String? get websiteHost {
+    final String raw = websiteLink?.url ?? '';
+    if (raw.trim().isEmpty) return null;
+    final Uri? uri = Uri.tryParse(raw.trim());
+    if (uri == null || uri.host.isEmpty) {
+      return raw.replaceFirst(RegExp(r'^https?://'), '').replaceAll(RegExp(r'/+$'), '');
+    }
+    return uri.host;
+  }
+
   /// Human-readable WhatsApp number, e.g. `+923470563895` -> `+92 347 0563895`.
   ///
   /// Returns null when no WhatsApp link exists. Numbers that are stored as a

@@ -33,7 +33,8 @@ insert into public.profiles (
   jsonb_build_object(
     'github',   jsonb_build_object('url', 'https://github.com/your-username', 'label', 'GitHub'),
     'linkedin', jsonb_build_object('url', 'https://www.linkedin.com/in/your-username', 'label', 'LinkedIn'),
-    'whatsapp', jsonb_build_object('url', '+923470563895', 'label', 'WhatsApp')
+    'whatsapp', jsonb_build_object('url', '+923470563895', 'label', 'WhatsApp'),
+    'website', jsonb_build_object('url', 'https://portfolio-website-six-rosy-97.vercel.app/', 'label', 'Website')
   ),
   'avatar/avatar.png',
   null,
